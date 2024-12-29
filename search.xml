@@ -8,9 +8,17 @@
       <link href="/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"/>
       <url>/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<p><a href="./setup.zsh"><code>setup.zsh</code></a></p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> chromium </tag>
+            
+            <tag> v8 </tag>
+            
+        </tags>
       
     </entry>
     
