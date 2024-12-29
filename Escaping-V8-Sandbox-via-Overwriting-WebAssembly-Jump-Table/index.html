@@ -6,19 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    <meta name="description" content="In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while I have limited exploitation primitives like sandboxed AAR&#x2F;AAW. Setup Ubuntu 20.">
+    <meta name="description" content="In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while we have limited exploitation primitives like sandboxed AAR&#x2F;AAW. Setup Ubuntu 20">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)">
 <meta property="og:url" content="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/index.html">
 <meta property="og:site_name" content="Aaron&#39;s Blog">
-<meta property="og:description" content="In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while I have limited exploitation primitives like sandboxed AAR&#x2F;AAW. Setup Ubuntu 20.">
+<meta property="og:description" content="In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while we have limited exploitation primitives like sandboxed AAR&#x2F;AAW. Setup Ubuntu 20">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img1.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img2.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img3.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img4.png">
 <meta property="article:published_time" content="2024-02-03T03:00:00.000Z">
-<meta property="article:modified_time" content="2024-12-29T06:34:00.552Z">
+<meta property="article:modified_time" content="2024-12-29T06:39:04.486Z">
 <meta property="article:author" content="Aaron Cho">
 <meta property="article:tag" content="chromium">
 <meta property="article:tag" content="v8">
@@ -174,7 +174,7 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <p>In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while I have limited exploitation primitives like sandboxed AAR&#x2F;AAW.</p>
+    <p>In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while we have limited exploitation primitives like sandboxed AAR&#x2F;AAW.</p>
 <h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
 <li>Ubuntu 20.04.6 LTS (WSL)</li>
 <li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/7c369ec82136ac0afc559aaa0b31614840fcc0a0">7c369ec82136ac0afc559aaa0b31614840fcc0a0</a> (Feb 15, 2022)</li>
