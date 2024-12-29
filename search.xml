@@ -4,7 +4,7 @@
   
     
     <entry>
-      <title>Escaping V8 Sandbox via Overwriting WebAssembly Jump Table</title>
+      <title>Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)</title>
       <link href="/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"/>
       <url>/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/</url>
       

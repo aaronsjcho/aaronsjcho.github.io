@@ -8,13 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
     <meta name="description" content="setup.zsh">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Escaping V8 Sandbox via Overwriting WebAssembly Jump Table">
+<meta property="og:title" content="Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)">
 <meta property="og:url" content="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/index.html">
 <meta property="og:site_name" content="Aaron&#39;s Blog">
 <meta property="og:description" content="setup.zsh">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-03T03:00:00.000Z">
-<meta property="article:modified_time" content="2024-12-29T05:04:21.843Z">
+<meta property="article:modified_time" content="2024-12-29T05:05:11.227Z">
 <meta property="article:author" content="Aaron Cho">
 <meta property="article:tag" content="chromium">
 <meta property="article:tag" content="v8">
@@ -38,7 +38,7 @@
       
     
     <!-- title -->
-    <title>Escaping V8 Sandbox via Overwriting WebAssembly Jump Table</title>
+    <title>Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -85,8 +85,6 @@
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
-       --><li><a href="/categories/">Category</a></li><!--
-     --><!--
        --><li><a href="/tags/">Tag</a></li><!--
      --><!--
        --><li><a href="/search/">Search</a></li><!--
@@ -110,16 +108,16 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -135,7 +133,7 @@
   <header>
     
     <h1 class="posttitle p-name" itemprop="name headline">
-        Escaping V8 Sandbox via Overwriting WebAssembly Jump Table
+        Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)
     </h1>
 
 
@@ -187,8 +185,6 @@
         
           <li><a href="/archives/">Writing</a></li>
         
-          <li><a href="/categories/">Category</a></li>
-        
           <li><a href="/tags/">Tag</a></li>
         
           <li><a href="/search/">Search</a></li>
@@ -202,16 +198,16 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -244,8 +240,6 @@
        --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
-     --><!--
-       --><li><a href="/categories/">Category</a></li><!--
      --><!--
        --><li><a href="/tags/">Tag</a></li><!--
      --><!--

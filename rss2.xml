@@ -9,11 +9,11 @@
     <atom:link href="https://aaronsjcho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>Hi, I am Aaron Cho, offensive security researcher from Republic of Korea.</description>
-    <pubDate>Sun, 29 Dec 2024 05:04:21 GMT</pubDate>
+    <pubDate>Sun, 29 Dec 2024 05:05:11 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
-      <title>Escaping V8 Sandbox via Overwriting WebAssembly Jump Table</title>
+      <title>Escaping V8 Sandbox via Overwriting WebAssembly Jump Table (Chromium &lt; 100.0.4896.60, V8 &lt; 10.0.136)</title>
       <link>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/</link>
       <guid>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/</guid>
       <pubDate>Sat, 03 Feb 2024 03:00:00 GMT</pubDate>
