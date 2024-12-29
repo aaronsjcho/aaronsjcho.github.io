@@ -13,17 +13,17 @@
 <meta property="og:site_name" content="Aaron&#39;s Blog">
 <meta property="og:description" content="In this post, I will explain how to escape V8 sandbox via overwriting WebAssembly jump table for getting RCE, while I have limited exploitation primitives like sandboxed AAR&#x2F;AAW. Setup Ubuntu 20.">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img1.png">
-<meta property="og:image" content="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img2.png">
-<meta property="og:image" content="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img3.png">
-<meta property="og:image" content="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img4.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/img/img1.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/img/img2.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/img/img3.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/img/img4.png">
 <meta property="article:published_time" content="2024-02-03T03:00:00.000Z">
-<meta property="article:modified_time" content="2024-12-29T06:27:28.634Z">
+<meta property="article:modified_time" content="2024-12-29T06:29:37.639Z">
 <meta property="article:author" content="Aaron Cho">
 <meta property="article:tag" content="chromium">
 <meta property="article:tag" content="v8">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img1.png">
+<meta name="twitter:image" content="https://aaronsjcho.github.io/img/img1.png">
     
     
       
@@ -183,16 +183,16 @@
 <p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/sandbox.diff"><code>sandbox.diff</code></a> is the same patch with <a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/4a12cb1022ba335ce087dcfe31b261355524b3bf">[sandbox] Add new Memory Corruption API</a> (May 20, 2022). Applying this patch, we can implement limited exploitation primitives using memory corruption API.</p>
 <h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Implement-exploitation-primitives"><a href="#Implement-exploitation-primitives" class="headerlink" title="Implement exploitation primitives"></a>Implement exploitation primitives</h3><p>We can implement sandboxed <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/pwn.js#L7"><code>addrof</code></a> primitive which returns address of any JavaScript object in V8 sandbox, using <code>Sandbox.getAddressOf</code>. Also, we can implement sandboxed <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/pwn.js#L12">AAR</a>&#x2F;<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/pwn.js#L18">AAW</a> primitives which read and write value at arbitrary address in V8 sandbox, using <code>Sandbox.MemoryView</code>.</p>
 <h3 id="Expand-AAR-AAW"><a href="#Expand-AAR-AAW" class="headerlink" title="Expand AAR&#x2F;AAW"></a>Expand AAR&#x2F;AAW</h3><p><code>ArrayBuffer</code> stores data in its backing store.</p>
-<p><img src="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img1.png"></p>
-<p><img src="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img2.png"></p>
+<p><img src="/img/img1.png"></p>
+<p><img src="/img/img2.png"></p>
 <p>The address of backing store is saved in <code>ArrayBuffer</code> object as 8-byte full pointer. We can overwrite this pointer with arbitrary address using sandboxed AAW primitive. Then, the value we store in this <code>ArrayBuffer</code> will be written to the new backing store. That would be full AAR&#x2F;AAW primitives, which work outside of V8 sandbox.</p>
 <h3 id="Execute-shellcode"><a href="#Execute-shellcode" class="headerlink" title="Execute shellcode"></a>Execute shellcode</h3><p>When we construct a Wasm module, a memory region with RWX permission is allocated for compiling and executing Wasm function.</p>
-<p><img src="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img3.png"></p>
+<p><img src="/img/img3.png"></p>
 <p>At the head of this region, there is jump table which is responsible to decide execution flow for Wasm function. In short, when Wasm function is called, <code>rip</code> moves to the jump table. So, if we overwrite jump table with arbitrary shellcode using full AAW primitive, the shellcode will be executed when Wasm function is called.</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;(module (func (export &quot;main&quot;)))&#x27;</span> &gt; pwn.wat</span><br><span class="line">~/wabt/bin/wat2wasm pwn.wat <span class="comment"># output: pwn.wasm</span></span><br></pre></td></tr></table></figure>
 
 <p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/pwn.js"><code>pwn.js</code></a></p>
-<p><img src="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20Overwriting%20WebAssembly%20Jump%20Table/img/img4.png"></p>
+<p><img src="/img/img4.png"></p>
 <h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
 <p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/17b46632cba261c1eb9c87347a05867079e6a7b9">[wasm] Ship code protection via memory protection keys</a> (Feb 15, 2022)</p>
 </blockquote>
