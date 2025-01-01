@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/CVE-2023-2033/</loc>
+        <lastmod>2025-01-01T07:17:58.100Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Overwriting-WebAssembly-Jump-Table/</loc>
         <lastmod>2025-01-01T04:18:18.318Z</lastmod>
         <changefreq>weekly</changefreq>
