@@ -9,14 +9,14 @@
     <atom:link href="https://aaronsjcho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>Hi, I am Aaron (Seongjoon) Cho, offensive security researcher from Republic of Korea.</description>
-    <pubDate>Sat, 11 Jan 2025 03:08:14 GMT</pubDate>
+    <pubDate>Sat, 11 Jan 2025 04:56:04 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
       <title>Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)</title>
       <link>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/</link>
       <guid>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/</guid>
-      <pubDate>Sat, 03 Feb 2024 03:00:00 GMT</pubDate>
+      <pubDate>Mon, 29 Apr 2024 03:00:00 GMT</pubDate>
       
         
         
