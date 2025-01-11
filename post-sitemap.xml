@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying/</loc>
+        <lastmod>2025-01-11T06:18:15.520Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-WebAssembly-JIT-Spraying-Part-2/</loc>
         <lastmod>2025-01-11T06:03:53.853Z</lastmod>
         <changefreq>weekly</changefreq>
