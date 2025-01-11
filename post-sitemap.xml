@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/</loc>
+        <lastmod>2025-01-11T08:03:33.470Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-WebAssembly-JIT-Spraying-Part-1/</loc>
         <lastmod>2025-01-11T07:27:14.633Z</lastmod>
         <changefreq>weekly</changefreq>
