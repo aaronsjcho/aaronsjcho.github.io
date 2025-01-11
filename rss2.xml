@@ -14,8 +14,8 @@
     
     <item>
       <title>Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)</title>
-      <link>https://aaronsjcho.github.io/escaping-v8-sandbox-via-arraybuffer-and-webassembly-jump-table/</link>
-      <guid>https://aaronsjcho.github.io/escaping-v8-sandbox-via-arraybuffer-and-webassembly-jump-table/</guid>
+      <link>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAsembly-Jump-Table/</link>
+      <guid>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAsembly-Jump-Table/</guid>
       <pubDate>Sat, 03 Feb 2024 03:00:00 GMT</pubDate>
       
         
@@ -34,7 +34,7 @@
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
       
-      <comments>https://aaronsjcho.github.io/escaping-v8-sandbox-via-arraybuffer-and-webassembly-jump-table/#disqus_thread</comments>
+      <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAsembly-Jump-Table/#disqus_thread</comments>
       
     </item>
     
