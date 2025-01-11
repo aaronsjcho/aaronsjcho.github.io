@@ -18,6 +18,10 @@
             
             <tag> v8 </tag>
             
+            <tag> renderer </tag>
+            
+            <tag> rce </tag>
+            
         </tags>
       
     </entry>
@@ -39,6 +43,10 @@
             
             <tag> v8 </tag>
             
+            <tag> renderer </tag>
+            
+            <tag> rce </tag>
+            
         </tags>
       
     </entry>
@@ -59,6 +67,10 @@
             <tag> chromium </tag>
             
             <tag> v8 </tag>
+            
+            <tag> renderer </tag>
+            
+            <tag> rce </tag>
             
         </tags>
       
