@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/CVE-2023-2033/</loc>
+        <lastmod>2025-01-12T04:42:03.313Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/</loc>
         <lastmod>2025-01-12T04:09:27.990Z</lastmod>
         <changefreq>weekly</changefreq>
