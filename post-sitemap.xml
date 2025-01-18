@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/CVE-2020-6418/</loc>
+        <lastmod>2025-01-18T08:21:08.926Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/CVE-2023-2033/</loc>
         <lastmod>2025-01-18T07:23:32.589Z</lastmod>
         <changefreq>weekly</changefreq>
