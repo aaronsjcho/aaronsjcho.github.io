@@ -9,7 +9,7 @@
     <atom:link href="https://aaronsjcho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>Hi, I am Aaron Seongjoon Cho, offensive security researcher from Republic of Korea.</description>
-    <pubDate>Sat, 11 Jan 2025 07:03:31 GMT</pubDate>
+    <pubDate>Sat, 18 Jan 2025 03:30:36 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -32,8 +32,6 @@
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
@@ -62,8 +60,6 @@
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
@@ -95,8 +91,6 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
-      
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
       
@@ -124,8 +118,6 @@
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
@@ -156,8 +148,6 @@
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
@@ -191,8 +181,6 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
-      
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
@@ -222,8 +210,6 @@
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
@@ -255,8 +241,6 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
-      
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
       
@@ -284,8 +268,6 @@
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
       
