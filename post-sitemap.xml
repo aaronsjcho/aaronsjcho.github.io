@@ -25,24 +25,8 @@
     </url>
 
     <url>
-        <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/</loc>
-        <lastmod>2025-01-12T04:58:36.081Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying/</loc>
         <lastmod>2025-01-12T04:57:23.034Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/CVE-2023-2033/</loc>
-        <lastmod>2025-01-12T04:44:21.612Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
