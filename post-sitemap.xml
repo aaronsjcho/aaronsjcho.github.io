@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/CVE-2024-2887/</loc>
+        <lastmod>2025-01-18T06:48:17.927Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</loc>
         <lastmod>2025-01-18T05:39:30.268Z</lastmod>
         <changefreq>weekly</changefreq>
