@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</loc>
+        <lastmod>2025-01-18T05:39:30.268Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying-Part-2/</loc>
         <lastmod>2025-01-18T05:19:32.907Z</lastmod>
         <changefreq>weekly</changefreq>
