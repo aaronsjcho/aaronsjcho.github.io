@@ -65,6 +65,14 @@
     </url>
 
     <url>
+        <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/</loc>
+        <lastmod>2025-01-18T03:30:46.629Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/</loc>
         <lastmod>2025-01-18T03:30:36.805Z</lastmod>
         <changefreq>weekly</changefreq>
