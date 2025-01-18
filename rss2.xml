@@ -191,6 +191,39 @@
     </item>
     
     <item>
+      <title>[HITCON CTF 2022 / Pwn] Fourchain - Hole</title>
+      <link>https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/</link>
+      <guid>https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/</guid>
+      <pubDate>Sat, 26 Aug 2023 03:00:00 GMT</pubDate>
+      
+        
+        
+      <description>&lt;blockquote&gt;
+&lt;p&gt;There’s a hole in the program ?&lt;br&gt;Well I’m sure it’s not that of a big deal, after all it’s just a small hole that won’t do</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<blockquote><p>There’s a hole in the program ?<br>Well I’m sure it’s not that of a big deal, after all it’s just a small hole that won’t do any damage right ?<br>… Right 😨 ?<br><a href="https://ctf2022.hitcon.org/dashboard/#14">Challange</a> <a href="https://ctftime.org/task/23943">CTFtime</a> <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment">Attachment</a></p></blockquote><h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul><li>Ubuntu 22.04.5 LTS (WSL)</li><li><a href="https://chromium.googlesource.com/v8/v8/+/63cb7fb817e60e5633fb622baf18c59da7a0a682">63cb7fb817e60e5633fb622baf18c59da7a0a682</a> (Nov 17th, 2022)</li></ul><p>Save <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment"><code>attachment</code></a>, <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/dcheck.diff"><code>dcheck.diff</code></a> and <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/setup.zsh"><code>setup.zsh</code></a> in your working directory and run <code>setup.zsh</code>.</p><h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p><a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch"><code>add_hole.patch</code></a> adds <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch#L64"><code>hole()</code></a> method to <code>Array</code> object. It is implemented as <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch#L9"><code>BUILTIN(ArrayHole)</code></a>. If <code>args.length()</code> is not more than 1, which means that no argument is passed to <code>hole()</code> method, it returns <code>ReadOnlyRoots(isolate).the_hole_value()</code>, which is <code>the_hole</code> object in JavaScript.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/1.png"></p><h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><p><code>add_hole.patch</code> <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch#L26">removes</a> the patch for the exploitation technique explained in <a href="https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/">Exploiting V8 Hole via Corrupting Map Object (Chromium &lt; 103.0.5060.53)</a>, so we can just use it and get RCE.</p><p>You have to install <code>/bin/xcalc</code> by running <code>sudo apt install -y x11-apps</code> before executing <a href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/pwn.js"><code>pwn.js</code></a> if you are using WSL.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/2.png"></p>]]></content:encoded>
+      
+      
+      
+      <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/ctf/">ctf</category>
+      
+      
+      <comments>https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
       <title>Exploiting V8 Hole via Corrupting Map Object (Chromium &lt; 103.0.5060.53)</title>
       <link>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/</link>
       <guid>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/</guid>

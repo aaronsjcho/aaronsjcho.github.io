@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <meta name="description" content="There’s a hole in the program ?Well I’m sure it’s not that of a big deal, after all it’s just a small hole that won’t do any damage right ?… Right 😨 ?Challange CTFtime Attachment  Setup Ubuntu 22.04">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[HITCON CTF 2022 &#x2F; Pwn] Fourchain - Hole">
+<meta property="og:url" content="https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="There’s a hole in the program ?Well I’m sure it’s not that of a big deal, after all it’s just a small hole that won’t do any damage right ?… Right 😨 ?Challange CTFtime Attachment  Setup Ubuntu 22.04">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/2.png">
+<meta property="article:published_time" content="2023-08-26T03:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-18T03:48:05.595Z">
+<meta property="article:author" content="Aaron Seongjoon Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="v8">
+<meta property="article:tag" content="rce">
+<meta property="article:tag" content="hole">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/web-app-manifest-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>[HITCON CTF 2022 / Pwn] Fourchain - Hole</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXRLJ2S4LP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TXRLJ2S4LP');
+  </script>
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+    <link rel="canonical" href="https://aaronsjcho.github.io/hitcon-ctf-2022-pwn-fourchain-hole/">
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/rss2.xml" title="Aaron's Note" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/Exploiting-V8-Hole-via-Number-Constructor/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/Exploiting-V8-Hole-via-Corrupting-Map-Object/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&text=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&is_video=false&description=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[HITCON CTF 2022 / Pwn] Fourchain - Hole&body=Check out this article: https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&name=[HITCON CTF 2022 / Pwn] Fourchain - Hole&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&t=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        [HITCON CTF 2022 / Pwn] Fourchain - Hole
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Aaron Seongjoon Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-08-26T03:00:00.000Z" class="dt-published" itemprop="datePublished">2023-08-26</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/ctf/" rel="tag">ctf</a>, <a class="p-category" href="/tags/hole/" rel="tag">hole</a>, <a class="p-category" href="/tags/rce/" rel="tag">rce</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>There’s a hole in the program ?<br>Well I’m sure it’s not that of a big deal, after all it’s just a small hole that won’t do any damage right ?<br>… Right 😨 ?<br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://ctf2022.hitcon.org/dashboard/#14">Challange</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://ctftime.org/task/23943">CTFtime</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment">Attachment</a></p>
+</blockquote>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 22.04.5 LTS (WSL)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/63cb7fb817e60e5633fb622baf18c59da7a0a682">63cb7fb817e60e5633fb622baf18c59da7a0a682</a> (Nov 17th, 2022)</li>
+</ul>
+<p>Save <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment"><code>attachment</code></a>, <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/dcheck.diff"><code>dcheck.diff</code></a> and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/setup.zsh"><code>setup.zsh</code></a> in your working directory and run <code>setup.zsh</code>.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch"><code>add_hole.patch</code></a> adds <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch#L64"><code>hole()</code></a> method to <code>Array</code> object. It is implemented as <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch#L9"><code>BUILTIN(ArrayHole)</code></a>. If <code>args.length()</code> is not more than 1, which means that no argument is passed to <code>hole()</code> method, it returns <code>ReadOnlyRoots(isolate).the_hole_value()</code>, which is <code>the_hole</code> object in JavaScript.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/1.png"></p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><p><code>add_hole.patch</code> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/attachment/add_hole.patch#L26">removes</a> the patch for the exploitation technique explained in <a href="https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/">Exploiting V8 Hole via Corrupting Map Object (Chromium &lt; 103.0.5060.53)</a>, so we can just use it and get RCE.</p>
+<p>You have to install <code>/bin/xcalc</code> by running <code>sudo apt install -y x11-apps</code> before executing <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/tree/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/pwn.js"><code>pwn.js</code></a> if you are using WSL.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/HITCON%20CTF/2022/Fourchain%20-%20Hole/img/2.png"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&text=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&is_video=false&description=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[HITCON CTF 2022 / Pwn] Fourchain - Hole&body=Check out this article: https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&title=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&name=[HITCON CTF 2022 / Pwn] Fourchain - Hole&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/&t=[HITCON CTF 2022 / Pwn] Fourchain - Hole"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Aaron Seongjoon Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
