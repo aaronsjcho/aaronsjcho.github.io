@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/</loc>
+        <lastmod>2025-01-19T04:09:41.744Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Issue-41483297/</loc>
         <lastmod>2025-01-19T03:54:52.795Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -107,14 +115,6 @@
     <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-WebAssembly-JIT-Spraying-Part-2/</loc>
         <lastmod>2025-01-18T03:30:32.321Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/</loc>
-        <lastmod>2025-01-18T03:30:29.770Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
