@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/CVE-2021-38003/</loc>
+        <lastmod>2025-01-19T04:41:11.454Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Corrupting-Map-Object/</loc>
         <lastmod>2025-01-19T04:09:41.744Z</lastmod>
         <changefreq>weekly</changefreq>
