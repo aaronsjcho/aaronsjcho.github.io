@@ -224,6 +224,39 @@
     </item>
     
     <item>
+      <title>[DiceCTF 2022 / Pwn] memory hole</title>
+      <link>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</link>
+      <guid>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</guid>
+      <pubDate>Sat, 09 Sep 2023 03:00:00 GMT</pubDate>
+      
+        
+        
+      <description>&lt;blockquote&gt;
+&lt;p&gt;literally 1984.&lt;br&gt;note: you should read the design doc of The Cage and its code; try to understand how it works, since it’l</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<blockquote><p>literally 1984.<br>note: you should read the design doc of The Cage and its code; try to understand how it works, since it’ll be hard to solve this challenge by just jit monkeying.<br><a href="https://github.com/dicegang/dicectf-2022-challenges/tree/master/pwn/memory-hole">Challenge</a> <a href="https://ctftime.org/task/18826">CTFtime</a> <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment">Attachment</a></p></blockquote><h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul><li>Ubuntu 20.04.6 LTS (WSL)</li><li><a href="https://chromium.googlesource.com/v8/v8/+/refs/tags/9.9.105">refs&#x2F;tags&#x2F;9.9.105</a> (Jan 16th, 2022)</li></ul><p>Save <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment"><code>attachment</code></a>, <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/dcheck.diff"><code>dcheck.diff</code></a> and <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/setup.zsh"><code>setup.zsh</code></a> in your working directory and run <code>setup.zsh</code>.</p><h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Out-of-bounds-caused-by-setLength-method"><a href="#Out-of-bounds-caused-by-setLength-method" class="headerlink" title="Out of bounds caused by setLength() method"></a>Out of bounds caused by setLength() method</h3><p><a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment/bin/patch.patch"><code>patch.patch</code></a> adds <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment/bin/patch.patch#L122"><code>setLength()</code></a> method which sets length of an array to arbitrary value to <code>Array</code> object.</p><p>Without new <code>setLength()</code> method, we can set length of an array like following:</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/1.png"></p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/2.png"></p><p>In this case, extended array for elements of <code>arr</code> is newly allocated because OOB occurs otherwise. This is handled by <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/elements.cc;l=888"><code>Subclass::GrowCapacityAndConvertImpl()</code></a> which is <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/elements.cc;l=770">called</a> in <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/elements.cc;l=722"><code>Subclass::SetLengthImpl()</code></a>.</p><p>However, <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment/bin/patch.patch#L44"><code>ArrayPrototypeSetLength()</code></a> doesn’t care about the possibility of OOB. It just set <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/js-array.tq;l=56"><code>length</code></a> of <code>array</code> to new <code>len</code>, without allocating new <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/js-objects.tq;l=33"><code>elements</code></a>. As a result, we can access out of bounds of an array after we increase its length using <code>setLength()</code> method.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/3.png"></p><h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Implement-exploitation-primitives"><a href="#Implement-exploitation-primitives" class="headerlink" title="Implement exploitation primitives"></a>Implement exploitation primitives</h3><p>We can implement <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js#L68"><code>addrof</code></a> primitive by defining <code>oob_arr</code> and <code>obj_arr</code> consecutively in a function and accessing to <code>obj_arr</code> using OOB. Then we can get the address of object in <code>obj_arr[0]</code> as a float number. We can also implement sandboxed <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js#L74">AAR</a>&#x2F;<a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js#L80">AAW</a> primitives by defining <code>oob_arr</code> and <code>typed_arr</code> consecutively and overwriting <code>base_pointer</code> of <code>typed_arr</code> using OOB.</p><h3 id="Escape-V8-sandbox-to-get-RCE"><a href="#Escape-V8-sandbox-to-get-RCE" class="headerlink" title="Escape V8 sandbox to get RCE"></a>Escape V8 sandbox to get RCE</h3><blockquote><p><a href="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying-Part-1/">Escaping V8 Sandbox via Turbofan JIT Spraying: Part 1 (Chromium &lt; 100.0.4896.60)</a></p></blockquote><p>You have to install <code>/bin/xcalc</code> via <code>sudo apt install -y x11-apps</code> before running <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js"><code>pwn.js</code></a> if you are using WSL.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/4.png"></p>]]></content:encoded>
+      
+      
+      
+      <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/ctf/">ctf</category>
+      
+      
+      <comments>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
       <title>Exploiting V8 Hole via Number Constructor (Chromium &lt; 115.0.5790.98)</title>
       <link>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/</link>
       <guid>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/</guid>
@@ -250,39 +283,6 @@
       
       
       <comments>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/#disqus_thread</comments>
-      
-    </item>
-    
-    <item>
-      <title>[DiceCTF 2022 / Pwn] memory hole</title>
-      <link>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</link>
-      <guid>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</guid>
-      <pubDate>Sun, 27 Aug 2023 03:00:00 GMT</pubDate>
-      
-        
-        
-      <description>&lt;blockquote&gt;
-&lt;p&gt;literally 1984.&lt;br&gt;note: you should read the design doc of The Cage and its code; try to understand how it works, since it’l</description>
-        
-      
-      
-      
-      <content:encoded><![CDATA[<blockquote><p>literally 1984.<br>note: you should read the design doc of The Cage and its code; try to understand how it works, since it’ll be hard to solve this challenge by just jit monkeying.<br><a href="https://github.com/dicegang/dicectf-2022-challenges/tree/master/pwn/memory-hole">Challenge</a> <a href="https://ctftime.org/task/18826">CTFtime</a> <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment">Attachment</a></p></blockquote><h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul><li>Ubuntu 20.04.6 LTS (WSL)</li><li><a href="https://chromium.googlesource.com/v8/v8/+/refs/tags/9.9.105">refs&#x2F;tags&#x2F;9.9.105</a> (Jan 16th, 2022)</li></ul><p>Save <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment"><code>attachment</code></a>, <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/dcheck.diff"><code>dcheck.diff</code></a> and <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/setup.zsh"><code>setup.zsh</code></a> in your working directory and run <code>setup.zsh</code>.</p><h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Out-of-bounds-caused-by-setLength-method"><a href="#Out-of-bounds-caused-by-setLength-method" class="headerlink" title="Out of bounds caused by setLength() method"></a>Out of bounds caused by setLength() method</h3><p><a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment/bin/patch.patch"><code>patch.patch</code></a> adds <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment/bin/patch.patch#L122"><code>setLength()</code></a> method which sets length of an array to arbitrary value to <code>Array</code> object.</p><p>Without new <code>setLength()</code> method, we can set length of an array like following:</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/1.png"></p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/2.png"></p><p>In this case, extended array for elements of <code>arr</code> is newly allocated because OOB occurs otherwise. This is handled by <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/elements.cc;l=888"><code>Subclass::GrowCapacityAndConvertImpl()</code></a> which is <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/elements.cc;l=770">called</a> in <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/elements.cc;l=722"><code>Subclass::SetLengthImpl()</code></a>.</p><p>However, <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/attachment/bin/patch.patch#L44"><code>ArrayPrototypeSetLength()</code></a> doesn’t care about the possibility of OOB. It just set <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/js-array.tq;l=56"><code>length</code></a> of <code>array</code> to new <code>len</code>, without allocating new <a href="https://source.chromium.org/chromium/v8/v8/+/refs/tags/9.9.105:src/objects/js-objects.tq;l=33"><code>elements</code></a>. As a result, we can access out of bounds of an array after we increase its length using <code>setLength()</code> method.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/3.png"></p><h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Implement-exploitation-primitives"><a href="#Implement-exploitation-primitives" class="headerlink" title="Implement exploitation primitives"></a>Implement exploitation primitives</h3><p>We can implement <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js#L68"><code>addrof</code></a> primitive by defining <code>oob_arr</code> and <code>obj_arr</code> consecutively in a function and accessing to <code>obj_arr</code> using OOB. Then we can get the address of object in <code>obj_arr[0]</code> as a float number. We can also implement sandboxed <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js#L74">AAR</a>&#x2F;<a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js#L80">AAW</a> primitives by defining <code>oob_arr</code> and <code>typed_arr</code> consecutively and overwriting <code>base_pointer</code> of <code>typed_arr</code> using OOB.</p><h3 id="Escape-V8-sandbox-to-get-RCE"><a href="#Escape-V8-sandbox-to-get-RCE" class="headerlink" title="Escape V8 sandbox to get RCE"></a>Escape V8 sandbox to get RCE</h3><blockquote><p><a href="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying-Part-1/">Escaping V8 Sandbox via Turbofan JIT Spraying: Part 1 (Chromium &lt; 100.0.4896.60)</a></p></blockquote><p>You have to install <code>/bin/xcalc</code> via <code>sudo apt install -y x11-apps</code> before running <a href="https://github.com/aaronsjcho/CTF/tree/main/DiceCTF/2022/memory%20hole/pwn.js"><code>pwn.js</code></a> if you are using WSL.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/DiceCTF/2022/memory%20hole/img/4.png"></p>]]></content:encoded>
-      
-      
-      
-      <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
-      
-      <category domain="https://aaronsjcho.github.io/tags/ctf/">ctf</category>
-      
-      
-      <comments>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/#disqus_thread</comments>
       
     </item>
     

@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</loc>
+        <lastmod>2025-02-08T05:45:25.364Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/</loc>
         <lastmod>2025-02-08T05:44:16.051Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -99,14 +107,6 @@
     <url>
         <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/</loc>
         <lastmod>2025-02-08T05:40:11.360Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</loc>
-        <lastmod>2025-02-08T05:40:07.374Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
