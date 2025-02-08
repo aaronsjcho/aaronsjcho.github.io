@@ -9,7 +9,7 @@
     <atom:link href="https://aaronsjcho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>Hi, I am Aaron (Seongjoon) Cho, offensive security researcher from Republic of Korea.</description>
-    <pubDate>Sun, 19 Jan 2025 03:42:05 GMT</pubDate>
+    <pubDate>Sat, 08 Feb 2025 05:40:02 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -34,7 +34,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/1-day/">1-day</category>
       
@@ -64,7 +64,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       
       <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/#disqus_thread</comments>
@@ -92,7 +92,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/1-day/">1-day</category>
       
@@ -122,7 +122,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       
       <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-WebAssembly-JIT-Spraying-Part-2/#disqus_thread</comments>
@@ -150,7 +150,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/1-day/">1-day</category>
       
@@ -180,7 +180,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
       
@@ -212,7 +212,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
       
@@ -244,7 +244,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
       
@@ -275,7 +275,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
       
@@ -308,7 +308,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
       
@@ -340,7 +340,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/hole/">hole</category>
       
@@ -370,7 +370,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       
       <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying-Part-2/#disqus_thread</comments>
@@ -398,10 +398,41 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       
       <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying-Part-1/#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>[RITSEC CTF 2021 / Pwn] Baby WASM</title>
+      <link>https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/</link>
+      <guid>https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/</guid>
+      <pubDate>Sat, 24 Jun 2023 03:00:00 GMT</pubDate>
+      
+        
+        
+      <description>&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&quot;https://gitlab.ritsec.cloud/competitions/ctf-2021/-/tree/master/pwn/babywasm&quot;&gt;Challenge&lt;/a&gt; &lt;a href=&quot;https://ctftim</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<blockquote><p><a href="https://gitlab.ritsec.cloud/competitions/ctf-2021/-/tree/master/pwn/babywasm">Challenge</a> <a href="https://ctftime.org/task/15542">CTFtime</a> <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment">Attachment</a></p></blockquote><h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul><li>Ubuntu 20.04.6 LTS</li><li><a href="https://chromium.googlesource.com/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a">0d81cd72688512abcbe1601015baee390c484a6a</a> (Sep 29th, 2020)</li></ul><p>Place <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment"><code>attachment</code></a> and <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/setup.zsh"><code>setup.zsh</code></a> in your working directory and run <code>setup.zsh</code>.</p><h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="WebAssembly-Memory"><a href="#WebAssembly-Memory" class="headerlink" title="WebAssembly.Memory"></a>WebAssembly.Memory</h3><p><a href="https://developer.mozilla.org/docs/WebAssembly/Reference/JavaScript_interface/Memory"><code>WebAssembly.Memory</code></a> object contains an <a href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-objects.h;l=294"><code>array_buffer</code></a> which is accessible from both of JavaScript and WebAssembly.</p><p>Constructor of <code>WebAssembly.Memory</code> gets an object as argument. This object must have <code>initial</code> property which is the initial size of <code>ArrayBuffer</code>, and optionally has <code>maximum</code> property which is the maximum size of <code>ArrayBuffer</code>. Unit of the size is page, and each page contains <a href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-constants.h;l=114"><code>kWasmPageSize</code></a> bytes.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/1.png"></p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/2.png"></p><p><code>WebAssembly.Memory</code> object has <a href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-js.cc;l=2196"><code>grow</code></a> method which extends the size of <code>array_buffer</code> by pages. This method is handled by <a href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-js.cc;l=1718"><code>WebAssemblyMemoryGrow()</code></a>.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/3.png"></p><h3 id="v8-diff"><a href="#v8-diff" class="headerlink" title="v8.diff"></a>v8.diff</h3><p><a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff"><code>v8.diff</code></a> adds a new <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L245"><code>shrink</code></a> method which reduces the size of <code>array_buffer</code> by bytes. This new method is handled by <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L215"><code>WebAssemblyMemoryShrink()</code></a>. <code>WebAssemblyMemoryShrink()</code> calls <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L258"><code>WasmMemoryObject::Shrink()</code></a>, which calls <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L52"><code>BackingStore::CopyWasmMemoryOnShrink()</code></a> to allocate <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L288"><code>new_backing_store</code></a> and replace <code>array_buffer</code> of <code>memory_object</code> with <a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L298"><code>new_buffer</code></a> whose backing store is <code>new_backing_store</code>.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/4.png"></p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/5.png"></p><h3 id="Use-after-free"><a href="#Use-after-free" class="headerlink" title="Use after free"></a>Use after free</h3><p>We can access to old backing store which is a freed chunk, by saving <code>mem.buffer</code> to another variable before we call <code>shrink()</code>.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/6.png"></p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/7.png"></p><h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Get-libc-base"><a href="#Get-libc-base" class="headerlink" title="Get libc base"></a>Get libc base</h3><p>We can get base address of libc by leaking the address of <code>main_arena</code> which is stored in forward pointer (or backward pointer) of freed chunk not in tcache.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/8.png"></p><h3 id="Tcache-dup"><a href="#Tcache-dup" class="headerlink" title="Tcache dup"></a>Tcache dup</h3><p>We can get a fake chunk at arbitrary address by overwriting forward pointer of freed chunk in tcache.</p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/9.png"></p><h3 id="Get-shell"><a href="#Get-shell" class="headerlink" title="Get shell"></a>Get shell</h3><p>We can execute arbitrary command by overwriting <code>__free_hook</code> with the address of <code>system()</code> and freeing a chunk in which shell command to execute is stored.</p><p><a href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/pwn.js"><code>pwn.js</code></a></p><p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/10.png"></p>]]></content:encoded>
+      
+      
+      
+      <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
+      
+      <category domain="https://aaronsjcho.github.io/tags/ctf/">ctf</category>
+      
+      
+      <comments>https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/#disqus_thread</comments>
       
     </item>
     
@@ -426,7 +457,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/1-day/">1-day</category>
       
@@ -457,7 +488,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       <category domain="https://aaronsjcho.github.io/tags/1-day/">1-day</category>
       
@@ -487,7 +518,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       
       <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-WebAssembly-JIT-Spraying-Part-1/#disqus_thread</comments>
@@ -515,7 +546,7 @@
       
       <category domain="https://aaronsjcho.github.io/tags/v8/">v8</category>
       
-      <category domain="https://aaronsjcho.github.io/tags/rce/">rce</category>
+      <category domain="https://aaronsjcho.github.io/tags/renderer/">renderer</category>
       
       
       <comments>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/#disqus_thread</comments>

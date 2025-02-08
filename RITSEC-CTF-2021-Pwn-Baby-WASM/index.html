@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <meta name="description" content="Challenge CTFtime Attachment  Setup Ubuntu 20.04.6 LTS 0d81cd72688512abcbe1601015baee390c484a6a (Sep 29th, 2020)  Place attachment and setup.zsh in your working directory and run setup.zsh. AnalysisW">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[RITSEC CTF 2021 &#x2F; Pwn] Baby WASM">
+<meta property="og:url" content="https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="Challenge CTFtime Attachment  Setup Ubuntu 20.04.6 LTS 0d81cd72688512abcbe1601015baee390c484a6a (Sep 29th, 2020)  Place attachment and setup.zsh in your working directory and run setup.zsh. AnalysisW">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/6.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/7.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/8.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/9.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/10.png">
+<meta property="article:published_time" content="2023-06-24T03:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-08T05:44:16.051Z">
+<meta property="article:author" content="Aaron (Seongjoon) Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="v8">
+<meta property="article:tag" content="renderer">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/web-app-manifest-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>[RITSEC CTF 2021 / Pwn] Baby WASM</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXRLJ2S4LP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TXRLJ2S4LP');
+  </script>
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+    <link rel="canonical" href="https://aaronsjcho.github.io/ritsec-ctf-2021-pwn-baby-wasm/">
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/rss2.xml" title="Aaron's Note" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/Escaping-V8-Sandbox-via-Turbofan-JIT-Spraying-Part-1/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/CVE-2020-6418/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&text=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&is_video=false&description=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[RITSEC CTF 2021 / Pwn] Baby WASM&body=Check out this article: https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&name=[RITSEC CTF 2021 / Pwn] Baby WASM&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&t=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebAssembly-Memory"><span class="toc-number">2.1.</span> <span class="toc-text">WebAssembly.Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-diff"><span class="toc-number">2.2.</span> <span class="toc-text">v8.diff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Use-after-free"><span class="toc-number">2.3.</span> <span class="toc-text">Use after free</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-libc-base"><span class="toc-number">3.1.</span> <span class="toc-text">Get libc base</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcache-dup"><span class="toc-number">3.2.</span> <span class="toc-text">Tcache dup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-shell"><span class="toc-number">3.3.</span> <span class="toc-text">Get shell</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        [RITSEC CTF 2021 / Pwn] Baby WASM
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Aaron (Seongjoon) Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-06-24T03:00:00.000Z" class="dt-published" itemprop="datePublished">2023-06-24</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/ctf/" rel="tag">ctf</a>, <a class="p-category" href="/tags/renderer/" rel="tag">renderer</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://gitlab.ritsec.cloud/competitions/ctf-2021/-/tree/master/pwn/babywasm">Challenge</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://ctftime.org/task/15542">CTFtime</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment">Attachment</a></p>
+</blockquote>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 20.04.6 LTS</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a">0d81cd72688512abcbe1601015baee390c484a6a</a> (Sep 29th, 2020)</li>
+</ul>
+<p>Place <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment"><code>attachment</code></a> and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/setup.zsh"><code>setup.zsh</code></a> in your working directory and run <code>setup.zsh</code>.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="WebAssembly-Memory"><a href="#WebAssembly-Memory" class="headerlink" title="WebAssembly.Memory"></a>WebAssembly.Memory</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/docs/WebAssembly/Reference/JavaScript_interface/Memory"><code>WebAssembly.Memory</code></a> object contains an <a target="_blank" rel="external nofollow noopener noreferrer" href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-objects.h;l=294"><code>array_buffer</code></a> which is accessible from both of JavaScript and WebAssembly.</p>
+<p>Constructor of <code>WebAssembly.Memory</code> gets an object as argument. This object must have <code>initial</code> property which is the initial size of <code>ArrayBuffer</code>, and optionally has <code>maximum</code> property which is the maximum size of <code>ArrayBuffer</code>. Unit of the size is page, and each page contains <a target="_blank" rel="external nofollow noopener noreferrer" href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-constants.h;l=114"><code>kWasmPageSize</code></a> bytes.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/1.png"></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/2.png"></p>
+<p><code>WebAssembly.Memory</code> object has <a target="_blank" rel="external nofollow noopener noreferrer" href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-js.cc;l=2196"><code>grow</code></a> method which extends the size of <code>array_buffer</code> by pages. This method is handled by <a target="_blank" rel="external nofollow noopener noreferrer" href="https://source.chromium.org/chromium/v8/v8/+/0d81cd72688512abcbe1601015baee390c484a6a:src/wasm/wasm-js.cc;l=1718"><code>WebAssemblyMemoryGrow()</code></a>.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/3.png"></p>
+<h3 id="v8-diff"><a href="#v8-diff" class="headerlink" title="v8.diff"></a>v8.diff</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff"><code>v8.diff</code></a> adds a new <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L245"><code>shrink</code></a> method which reduces the size of <code>array_buffer</code> by bytes. This new method is handled by <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L215"><code>WebAssemblyMemoryShrink()</code></a>. <code>WebAssemblyMemoryShrink()</code> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L258"><code>WasmMemoryObject::Shrink()</code></a>, which calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L52"><code>BackingStore::CopyWasmMemoryOnShrink()</code></a> to allocate <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L288"><code>new_backing_store</code></a> and replace <code>array_buffer</code> of <code>memory_object</code> with <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/attachment/v8.diff#L298"><code>new_buffer</code></a> whose backing store is <code>new_backing_store</code>.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/4.png"></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/5.png"></p>
+<h3 id="Use-after-free"><a href="#Use-after-free" class="headerlink" title="Use after free"></a>Use after free</h3><p>We can access to old backing store which is a freed chunk, by saving <code>mem.buffer</code> to another variable before we call <code>shrink()</code>.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/6.png"></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/7.png"></p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Get-libc-base"><a href="#Get-libc-base" class="headerlink" title="Get libc base"></a>Get libc base</h3><p>We can get base address of libc by leaking the address of <code>main_arena</code> which is stored in forward pointer (or backward pointer) of freed chunk not in tcache.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/8.png"></p>
+<h3 id="Tcache-dup"><a href="#Tcache-dup" class="headerlink" title="Tcache dup"></a>Tcache dup</h3><p>We can get a fake chunk at arbitrary address by overwriting forward pointer of freed chunk in tcache.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/9.png"></p>
+<h3 id="Get-shell"><a href="#Get-shell" class="headerlink" title="Get shell"></a>Get shell</h3><p>We can execute arbitrary command by overwriting <code>__free_hook</code> with the address of <code>system()</code> and freeing a chunk in which shell command to execute is stored.</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/CTF/blob/main/RITSEC%20CTF/2021/Baby%20WASM/pwn.js"><code>pwn.js</code></a></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/CTF/refs/heads/main/RITSEC%20CTF/2021/Baby%20WASM/img/10.png"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebAssembly-Memory"><span class="toc-number">2.1.</span> <span class="toc-text">WebAssembly.Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#v8-diff"><span class="toc-number">2.2.</span> <span class="toc-text">v8.diff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Use-after-free"><span class="toc-number">2.3.</span> <span class="toc-text">Use after free</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-libc-base"><span class="toc-number">3.1.</span> <span class="toc-text">Get libc base</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcache-dup"><span class="toc-number">3.2.</span> <span class="toc-text">Tcache dup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-shell"><span class="toc-number">3.3.</span> <span class="toc-text">Get shell</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&text=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&is_video=false&description=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[RITSEC CTF 2021 / Pwn] Baby WASM&body=Check out this article: https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&title=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&name=[RITSEC CTF 2021 / Pwn] Baby WASM&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/&t=[RITSEC CTF 2021 / Pwn] Baby WASM"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Aaron (Seongjoon) Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
