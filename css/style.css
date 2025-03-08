@@ -1597,6 +1597,7 @@ pre code {
 }
 code {
   padding: 0 5px;
+  background: #474c51;
   border: 0px solid #908d8d;
   border-radius: 5px;
   -webkit-border-radius: 5px;
