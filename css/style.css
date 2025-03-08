@@ -1525,77 +1525,68 @@ article .content .caption {
   content: ")";
 }
 .highlight {
-  background: #000;
-  color: #f8f8f8;
-}
-.highlight .code .comment,
-.highlight .code .quote {
-  color: #aeaeae;
-  font-style: italic;
+  background: #282b2e;
+  color: #e0e2e4;
 }
 .highlight .code .keyword,
 .highlight .code .selector-tag,
-.highlight .code .type {
-  color: #e28964;
+.highlight .code .literal,
+.highlight .code .selector-id {
+  color: #93c763;
 }
-.highlight .code .string {
-  color: #65b042;
+.highlight .code .number {
+  color: #ffcd22;
 }
-.highlight .code .subst {
-  color: #daefa3;
+.highlight .code .attribute {
+  color: #668bb0;
+}
+.highlight .code .code,
+.highlight .code .class .title,
+.highlight .code .section {
+  color: #fff;
 }
 .highlight .code .regexp,
 .highlight .code .link {
-  color: #e9c062;
-}
-.highlight .code .title,
-.highlight .code .section,
-.highlight .code .tag,
-.highlight .code .name {
-  color: #89bdff;
-}
-.highlight .code .class .title,
-.highlight .code .doctag {
-  text-decoration: underline;
-}
-.highlight .code .symbol,
-.highlight .code .bullet,
-.highlight .code .number {
-  color: #3387cc;
-}
-.highlight .code .params,
-.highlight .code .variable,
-.highlight .code .template-variable {
-  color: #3e87e3;
-}
-.highlight .code .attribute {
-  color: #cda869;
+  color: #d39745;
 }
 .highlight .code .meta {
-  color: #8996a8;
+  color: #557182;
 }
-.highlight .code .formula {
-  background-color: #0e2231;
-  color: #f8f8f8;
-  font-style: italic;
+.highlight .code .tag,
+.highlight .code .name,
+.highlight .code .bullet,
+.highlight .code .subst,
+.highlight .code .emphasis,
+.highlight .code .type,
+.highlight .code .built_in,
+.highlight .code .selector-attr,
+.highlight .code .selector-pseudo,
+.highlight .code .addition,
+.highlight .code .variable,
+.highlight .code .template-tag,
+.highlight .code .template-variable {
+  color: #8cbbad;
 }
-.highlight .code .addition {
-  background-color: #253b22;
-  color: #f8f8f8;
+.highlight .code .string,
+.highlight .code .symbol {
+  color: #ec7600;
 }
+.highlight .code .comment,
+.highlight .code .quote,
 .highlight .code .deletion {
-  background-color: #420e09;
-  color: #f8f8f8;
+  color: #818e96;
 }
 .highlight .code .selector-class {
-  color: #9b703f;
+  color: #a082bd;
 }
-.highlight .code .selector-id {
-  color: #8b98ab;
-}
-.highlight .code .emphasis {
-  font-style: italic;
-}
+.highlight .code .keyword,
+.highlight .code .selector-tag,
+.highlight .code .literal,
+.highlight .code .doctag,
+.highlight .code .title,
+.highlight .code .section,
+.highlight .code .type,
+.highlight .code .name,
 .highlight .code .strong {
   font-weight: bold;
 }
