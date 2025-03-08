@@ -1604,6 +1604,7 @@ pre code {
   border: none;
 }
 code {
+  font-family: Hack;
   padding: 0 3px;
   border: 1px solid #3c4145;
   border-radius: 5px;
