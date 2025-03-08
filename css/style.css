@@ -425,7 +425,7 @@ body table {
 }
 body th {
   padding: 8px;
-  border-bottom: 1px dashed #908d8d;
+  border-bottom: 1px dashed #3c4145;
   color: #eee;
   font-weight: bold;
   font-size: 13px;
@@ -928,7 +928,7 @@ body {
   left: 0;
   z-index: 5000000;
   width: 100%;
-  border-top: 1px solid #908d8d;
+  border-top: 1px solid #3c4145;
   background: #212326;
   transition: opacity 0.2s;
 }
@@ -1283,7 +1283,7 @@ article .content .caption {
   display: inline-block;
   margin-right: 15px;
   border-right: 1px solid;
-  border-color: #908d8d;
+  border-color: #3c4145;
   vertical-align: middle;
 }
 #footer li a {
@@ -1586,7 +1586,7 @@ pre {
   overflow-x: auto;
   padding: 10px 15px;
   padding-bottom: 0;
-  border: 1px dotted #908d8d;
+  border: 1px dotted #3c4145;
   border-radius: 4px;
   font-size: 13px;
   font-family: Hack;
@@ -1600,7 +1600,7 @@ pre code {
 }
 code {
   padding: 0 3px;
-  border: 0px solid #908d8d;
+  border: 1px solid #3c4145;
   border-radius: 5px;
   -webkit-border-radius: 2px;
 }
