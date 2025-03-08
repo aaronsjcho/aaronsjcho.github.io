@@ -1602,7 +1602,7 @@ code {
   padding: 0 3px;
   border: 1px solid #3c4145;
   border-radius: 5px;
-  -webkit-border-radius: 2px;
+  -webkit-border-radius: 5px;
 }
 .highlight {
   overflow-x: auto;
