@@ -1607,7 +1607,7 @@ code {
   font-family: Hack;
   font-size: 12px;
   padding: 0 3px;
-  border: 1px solid #3c4145;
+  border: 0px solid #3c4145;
   border-radius: 5px;
   -webkit-border-radius: 5px;
 }
