@@ -572,7 +572,7 @@ body {
   }
 }
 .max-width {
-  max-width: 48rem;
+  max-width: 100rem;
 }
 @media (max-width: 480px) {
   .px3 {
@@ -1597,7 +1597,7 @@ pre code {
 }
 code {
   padding: 0 5px;
-  border: 1px dotted #908d8d;
+  border: 1px solid #908d8d;
   border-radius: 2px;
   -webkit-border-radius: 2px;
 }
