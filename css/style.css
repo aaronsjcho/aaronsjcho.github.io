@@ -572,7 +572,7 @@ body {
   }
 }
 .max-width {
-  max-width: 100rem;
+  max-width: 48rem;
 }
 @media (max-width: 480px) {
   .px3 {
@@ -1597,7 +1597,7 @@ pre code {
 }
 code {
   padding: 0 5px;
-  border: 1px solid #908d8d;
+  border: 0px solid #908d8d;
   border-radius: 5px;
   -webkit-border-radius: 5px;
 }
@@ -1606,7 +1606,7 @@ code {
   margin: 1rem 0;
   padding: 10px 15px;
   border-radius: 4px;
-  background: #212326;
+  background: #474c51;
   font-family: "Menlo", "Meslo LG", monospace;
   -webkit-border-radius: 4px;
 }
