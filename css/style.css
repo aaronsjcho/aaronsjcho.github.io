@@ -439,6 +439,10 @@ body td {
   font-family: "Meslo LG";
   src: local("Meslo LG S"), url("../lib/meslo-LG/MesloLGS-Regular.ttf") format("truetype");
 }
+@font-face {
+  font-family: "Monaco";
+  src: local("Monaco"), url("../lib/monaco.ttf");
+}
 *,
 *:before,
 *:after {
@@ -1596,8 +1600,8 @@ pre code {
   border: none;
 }
 code {
-  padding: 0 5px;
-  background: #474c51;
+  padding: 0 1px;
+  background: #323539;
   border: 0px solid #908d8d;
   border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -1607,7 +1611,7 @@ code {
   margin: 1rem 0;
   padding: 10px 15px;
   border-radius: 4px;
-  background: #474c51;
+  background: #323539;
   font-family: "Menlo", "Meslo LG", monospace;
   -webkit-border-radius: 4px;
 }
