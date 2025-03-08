@@ -1598,8 +1598,8 @@ pre code {
 code {
   padding: 0 5px;
   border: 1px solid #908d8d;
-  border-radius: 2px;
-  -webkit-border-radius: 2px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
 }
 .highlight {
   overflow-x: auto;
