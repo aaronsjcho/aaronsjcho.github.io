@@ -425,7 +425,7 @@ body table {
 }
 body th {
   padding: 8px;
-  border-bottom: 1px dashed #3c4145;
+  border-bottom: 1px dashed #908d8d;
   color: #eee;
   font-weight: bold;
   font-size: 13px;
@@ -435,12 +435,17 @@ body td {
   border-bottom: none;
 }
 @font-face {
+  font-style: normal;
+  font-family: "Meslo LG";
+  src: local("Meslo LG S"), url("../lib/meslo-LG/MesloLGS-Regular.ttf") format("truetype");
+}
+@font-face {
   font-family: "Monaco";
   src: local("Monaco"), url("../lib/Monaco.ttf");
 }
 @font-face {
   font-family: "Hack";
-  src: local("Hack"), url("../lib/Hack-Regular.ttf");
+  src: local("Hack"), url("../lib/Hack.ttf");
 }
 *,
 *:before,
@@ -928,7 +933,7 @@ body {
   left: 0;
   z-index: 5000000;
   width: 100%;
-  border-top: 1px solid #3c4145;
+  border-top: 1px solid #908d8d;
   background: #212326;
   transition: opacity 0.2s;
 }
@@ -1283,7 +1288,7 @@ article .content .caption {
   display: inline-block;
   margin-right: 15px;
   border-right: 1px solid;
-  border-color: #3c4145;
+  border-color: #908d8d;
   vertical-align: middle;
 }
 #footer li a {
@@ -1586,7 +1591,7 @@ pre {
   overflow-x: auto;
   padding: 10px 15px;
   padding-bottom: 0;
-  border: 1px dotted #3c4145;
+  border: 1px dotted #908d8d;
   border-radius: 4px;
   font-size: 13px;
   font-family: Hack;
@@ -1600,16 +1605,16 @@ pre code {
 }
 code {
   padding: 0 5px;
-  border: 1px solid #3c4145;
-  border-radius: 5px;
-  -webkit-border-radius: 5px;
+  border: 1px dotted #908d8d;
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
 }
 .highlight {
   overflow-x: auto;
   margin: 1rem 0;
   padding: 10px 15px;
   border-radius: 4px;
-  background: #3c4145;
+  background: #212326;
   font-family: Hack;
   -webkit-border-radius: 4px;
 }
