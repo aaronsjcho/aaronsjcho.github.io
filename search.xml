@@ -289,13 +289,13 @@
       
         <tags>
             
-            <tag> ctf </tag>
-            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
+            
+            <tag> ctf </tag>
             
         </tags>
       
@@ -339,13 +339,13 @@
       
         <tags>
             
-            <tag> ctf </tag>
-            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
+            
+            <tag> ctf </tag>
             
             <tag> hole </tag>
             
@@ -437,13 +437,13 @@
       
         <tags>
             
-            <tag> ctf </tag>
-            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
+            
+            <tag> ctf </tag>
             
         </tags>
       
