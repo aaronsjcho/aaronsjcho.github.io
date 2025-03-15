@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
     <meta name="description" content="In this post, I will explain how to escape V8 sandbox to get RCE via ArrayBuffer and WebAssembly jump table, while we have limited exploitation primitives like addrof and sandboxed AAR&#x2F;AAW. Setup">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)">
+<meta property="og:title" content="Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)">
 <meta property="og:url" content="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/index.html">
 <meta property="og:site_name" content="Aaron&#39;s Note">
 <meta property="og:description" content="In this post, I will explain how to escape V8 sandbox to get RCE via ArrayBuffer and WebAssembly jump table, while we have limited exploitation primitives like addrof and sandboxed AAR&#x2F;AAW. Setup">
@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20ArrayBuffer%20and%20WebAssembly%20Jump%20Table/img/3.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20ArrayBuffer%20and%20WebAssembly%20Jump%20Table/img/4.png">
 <meta property="article:published_time" content="2023-04-29T03:00:00.000Z">
-<meta property="article:modified_time" content="2025-02-08T05:40:11.360Z">
+<meta property="article:modified_time" content="2025-03-15T03:38:58.770Z">
 <meta property="article:author" content="Aaron (Seongjoon) Cho">
 <meta property="article:tag" content="chromium">
 <meta property="article:tag" content="renderer">
@@ -44,7 +44,7 @@
       
     
     <!-- title -->
-    <title>Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)</title>
+    <title>Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -114,16 +114,16 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -143,7 +143,7 @@
   <header>
     
     <h1 class="posttitle p-name" itemprop="name headline">
-        Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)
+        Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)
     </h1>
 
 
@@ -178,7 +178,7 @@
     <p>In this post, I will explain how to escape V8 sandbox to get RCE via ArrayBuffer and WebAssembly jump table, while we have limited exploitation primitives like <code>addrof</code> and sandboxed AAR&#x2F;AAW.</p>
 <h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
 <li>Ubuntu 20.04.6 LTS (WSL)</li>
-<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/7c369ec82136ac0afc559aaa0b31614840fcc0a0">7c369ec82136ac0afc559aaa0b31614840fcc0a0</a> (Feb 15th, 2022)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/7c369ec82136ac0afc559aaa0b31614840fcc0a0">7c369ec82136ac0afc559aaa0b31614840fcc0a0</a> (Feb 15, 2022)</li>
 </ul>
 <p>Save <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20ArrayBuffer%20and%20WebAssembly%20Jump%20Table/sandbox.diff"><code>sandbox.diff</code></a> and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20ArrayBuffer%20and%20WebAssembly%20Jump%20Table/setup.zsh"><code>setup.zsh</code></a> in your working directory, and run <code>setup.zsh</code> (<code>zsh</code> is required).</p>
 <p><code>sandbox.diff</code> is the same patch with <a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/4a12cb1022ba335ce087dcfe31b261355524b3bf">[sandbox] Add new Memory Corruption API</a> (May 20th, 2022). Applying this patch, we can implement limited exploitation primitives using memory corruption API.</p>
@@ -195,7 +195,7 @@
 <p>You have to install <code>/bin/xcalc</code> by running <code>sudo apt install -y x11-apps</code> before executing <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/blob/main/via%20ArrayBuffer%20and%20WebAssembly%20Jump%20Table/pwn.js"><code>pwn.js</code></a> if you are using WSL.</p>
 <p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20ArrayBuffer%20and%20WebAssembly%20Jump%20Table/img/4.png"></p>
 <h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/17b46632cba261c1eb9c87347a05867079e6a7b9">[wasm] Ship code protection via memory protection keys</a> (Feb 15th, 2022)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/17b46632cba261c1eb9c87347a05867079e6a7b9">[wasm] Ship code protection via memory protection keys</a> (Feb 15, 2022)</p>
 </blockquote>
 
   </div>
@@ -233,16 +233,16 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4896.60)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&text=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&is_video=false&description=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&title=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&name=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly-Jump-Table/&t=Escaping V8 Sandbox via ArrayBuffer and WebAssembly Jump Table (Chromium &lt; 100.0.4892.0)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
