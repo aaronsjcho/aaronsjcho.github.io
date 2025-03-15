@@ -9,6 +9,22 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</loc>
+        <lastmod>2025-03-15T03:37:48.214Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/</loc>
+        <lastmod>2025-03-15T03:36:16.737Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/</loc>
         <lastmod>2025-03-15T03:34:06.510Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -57,24 +73,8 @@
     </url>
 
     <url>
-        <loc>https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/</loc>
-        <lastmod>2025-03-01T05:02:06.195Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
         <loc>https://aaronsjcho.github.io/CVE-2020-6509/</loc>
         <lastmod>2025-03-01T04:58:49.161Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/</loc>
-        <lastmod>2025-02-08T05:45:25.364Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 

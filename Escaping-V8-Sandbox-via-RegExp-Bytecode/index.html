@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
     <meta name="description" content="In this post, I will explain how to escape V8 sandbox to get RCE via RegExp bytecode, while we have limited exploitation primitives like addrof and sandboxed AAR&#x2F;AAW. Setup Ubuntu 24.04.1 LTS (WS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)">
+<meta property="og:title" content="Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)">
 <meta property="og:url" content="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/index.html">
 <meta property="og:site_name" content="Aaron&#39;s Note">
 <meta property="og:description" content="In this post, I will explain how to escape V8 sandbox to get RCE via RegExp bytecode, while we have limited exploitation primitives like addrof and sandboxed AAR&#x2F;AAW. Setup Ubuntu 24.04.1 LTS (WS">
@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/5.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/6.png">
 <meta property="article:published_time" content="2024-07-27T03:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-01T05:02:06.195Z">
+<meta property="article:modified_time" content="2025-03-15T03:36:16.737Z">
 <meta property="article:author" content="Aaron (Seongjoon) Cho">
 <meta property="article:tag" content="chromium">
 <meta property="article:tag" content="renderer">
@@ -46,7 +46,7 @@
       
     
     <!-- title -->
-    <title>Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)</title>
+    <title>Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -118,16 +118,16 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&text=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&is_video=false&description=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&name=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&t=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&text=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&is_video=false&description=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&name=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&t=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -147,7 +147,7 @@
   <header>
     
     <h1 class="posttitle p-name" itemprop="name headline">
-        Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)
+        Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)
     </h1>
 
 
@@ -182,7 +182,7 @@
     <p>In this post, I will explain how to escape V8 sandbox to get RCE via <code>RegExp</code> bytecode, while we have limited exploitation primitives like <code>addrof</code> and sandboxed AAR&#x2F;AAW.</p>
 <h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
 <li>Ubuntu 24.04.1 LTS (WSL)</li>
-<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5">0c1231b6414d19468d6f7a35ff5b6167626f57a5</a> (Mar 22nd, 2024)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5">0c1231b6414d19468d6f7a35ff5b6167626f57a5</a> (Mar 22, 2024)</li>
 </ul>
 <p>Run <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20RegExp%20Bytecode/setup.zsh"><code>setup.zsh</code></a> in your working directory.</p>
 <h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="RegExp-bytecode"><a href="#RegExp-bytecode" class="headerlink" title="RegExp bytecode"></a>RegExp bytecode</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp"><code>RegExp</code></a> object is used for matching text with regular expression, and it is implemented as <a target="_blank" rel="external nofollow noopener noreferrer" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/objects/js-regexp.h;l=38"><code>JSRegExp</code></a> class.</p>
@@ -202,7 +202,8 @@
 <p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20RegExp%20Bytecode/pwn.js"><code>pwn.js</code></a></p>
 <p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/6.png"></p>
 <h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/b9349d97fd44aec615307c9d00697152da95a66a">[regex] Check bounds on register access in interpreter</a> (Mar 22nd, 2024)<br>Registers in the interpreter are stored on the stack&#x2F;heap outside the sandbox. The register index is stored in the bytecode, which is (not yet) in truested space.</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8/+/b9349d97fd44aec615307c9d00697152da95a66a">[regex] Check bounds on register access in interpreter</a> (Mar 22, 2024)</p>
+<p>Registers in the interpreter are stored on the stack&#x2F;heap outside the sandbox. The register index is stored in the bytecode, which is (not yet) in truested space.</p>
 </blockquote>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
 <li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://issues.chromium.org/issues/330404819">V8 Sandbox escape via regexp - Chromium Issues</a></li>
@@ -244,16 +245,16 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&text=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&is_video=false&description=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&name=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&t=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6422.60)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&text=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&is_video=false&description=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&name=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&t=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
