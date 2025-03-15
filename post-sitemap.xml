@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/</loc>
+        <lastmod>2025-03-15T03:24:10.864Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/CVE-2023-4069/</loc>
         <lastmod>2025-03-15T03:14:21.878Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -83,14 +91,6 @@
     <url>
         <loc>https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/</loc>
         <lastmod>2025-02-08T05:40:41.053Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/</loc>
-        <lastmod>2025-02-08T05:40:37.887Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
