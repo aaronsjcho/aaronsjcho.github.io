@@ -14,13 +14,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -62,13 +62,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -110,13 +110,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -135,13 +135,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -160,9 +160,9 @@
       
         <tags>
             
-            <tag> chromium </tag>
-            
             <tag> 1-day </tag>
+            
+            <tag> chromium </tag>
             
             <tag> sandbox </tag>
             
@@ -183,13 +183,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -208,6 +208,8 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
@@ -215,8 +217,6 @@
             <tag> v8 </tag>
             
             <tag> hole </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -235,6 +235,8 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
@@ -242,8 +244,6 @@
             <tag> v8 </tag>
             
             <tag> hole </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -262,6 +262,8 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
@@ -269,8 +271,6 @@
             <tag> v8 </tag>
             
             <tag> hole </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -289,13 +289,13 @@
       
         <tags>
             
-            <tag> ctf </tag>
-            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
+            
+            <tag> ctf </tag>
             
         </tags>
       
@@ -339,8 +339,6 @@
       
         <tags>
             
-            <tag> ctf </tag>
-            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
@@ -348,6 +346,8 @@
             <tag> v8 </tag>
             
             <tag> hole </tag>
+            
+            <tag> ctf </tag>
             
         </tags>
       
@@ -437,13 +437,13 @@
       
         <tags>
             
-            <tag> ctf </tag>
-            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
+            
+            <tag> ctf </tag>
             
         </tags>
       
@@ -462,13 +462,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
@@ -487,13 +487,13 @@
       
         <tags>
             
+            <tag> 1-day </tag>
+            
             <tag> chromium </tag>
             
             <tag> renderer </tag>
             
             <tag> v8 </tag>
-            
-            <tag> 1-day </tag>
             
         </tags>
       
