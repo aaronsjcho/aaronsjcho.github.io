@@ -1,3 +1,4 @@
+https://aaronsjcho.github.io/about/index.html
 https://aaronsjcho.github.io/CVE-2019-5782/
 https://aaronsjcho.github.io/CVE-2020-6418/
 https://aaronsjcho.github.io/CVE-2020-6509/
@@ -18,7 +19,6 @@ https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-ArrayBuffer-and-WebAssembly
 https://aaronsjcho.github.io/DiceCTF-2022-Pwn-memory-hole/
 https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/
 https://aaronsjcho.github.io/Exploiting-V8-Hole-via-Number-Constructor/
-https://aaronsjcho.github.io/about/index.html
 https://aaronsjcho.github.io/RITSEC-CTF-2021-Pwn-Baby-WASM/
 https://aaronsjcho.github.io/HITCON-CTF-2022-Pwn-Fourchain-Hole/
 https://aaronsjcho.github.io/tags/index.html
