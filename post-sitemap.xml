@@ -9,6 +9,22 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/CVE-2023-3079/</loc>
+        <lastmod>2025-04-18T09:31:03.243Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://aaronsjcho.github.io/CVE-2024-2887/</loc>
+        <lastmod>2025-04-18T09:30:18.671Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/CVE-2019-5782/</loc>
         <lastmod>2025-03-15T04:05:05.280Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -27,14 +43,6 @@
     <url>
         <loc>https://aaronsjcho.github.io/CVE-2020-6509/</loc>
         <lastmod>2025-03-15T04:05:05.268Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/CVE-2023-3079/</loc>
-        <lastmod>2025-03-15T04:05:05.267Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -82,14 +90,6 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/CVE-2023-4069/</loc>
-        <lastmod>2025-03-15T04:05:05.266Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/CVE-2024-2887/</loc>
         <lastmod>2025-03-15T04:05:05.266Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
