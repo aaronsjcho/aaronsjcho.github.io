@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="In this post, I will explain how to escape V8 sandbox to get RCE via RegExp bytecode, while we have limited exploitation primitives like addrof and sandboxed AAR&#x2F;AAW. Setup Ubuntu 24.04.1 LTS (WS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)">
+<meta property="og:url" content="https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="In this post, I will explain how to escape V8 sandbox to get RCE via RegExp bytecode, while we have limited exploitation primitives like addrof and sandboxed AAR&#x2F;AAW. Setup Ubuntu 24.04.1 LTS (WS">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/6.png">
+<meta property="article:published_time" content="2024-07-27T03:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-15T03:36:16.736Z">
+<meta property="article:author" content="Seongjoon Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="renderer">
+<meta property="article:tag" content="v8">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXRLJ2S4LP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TXRLJ2S4LP');
+  </script>
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="Aaron's Note" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writings</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/CVE-2024-2887/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/Issue-41483297/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&text=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&is_video=false&description=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&name=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&t=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RegExp-bytecode"><span class="toc-number">2.1.</span> <span class="toc-text">RegExp bytecode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Stack-buffer-overflow-in-RawMatch"><span class="toc-number">3.1.</span> <span class="toc-text">Stack buffer overflow in RawMatch()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-binary-base-address-and-stack-address"><span class="toc-number">3.2.</span> <span class="toc-text">Get binary base address and stack address</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execute-command-via-execve"><span class="toc-number">3.3.</span> <span class="toc-text">Execute command via execve</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Seongjoon Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-07-27T03:00:00.000Z" class="dt-published" itemprop="datePublished">2024-07-27</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/renderer/" rel="tag">renderer</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>In this post, I will explain how to escape V8 sandbox to get RCE via <code>RegExp</code> bytecode, while we have limited exploitation primitives like <code>addrof</code> and sandboxed AAR&#x2F;AAW.</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 24.04.1 LTS (WSL)</li>
+<li><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5">0c1231b6414d19468d6f7a35ff5b6167626f57a5</a> (Mar 22, 2024)</li>
+</ul>
+<p>Run <a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20RegExp%20Bytecode/setup.zsh"><code>setup.zsh</code></a> in your working directory.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="RegExp-bytecode"><a href="#RegExp-bytecode" class="headerlink" title="RegExp bytecode"></a>RegExp bytecode</h3><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp"><code>RegExp</code></a> object is used for matching text with regular expression, and it is implemented as <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/objects/js-regexp.h;l=38"><code>JSRegExp</code></a> class.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/1.png"></p>
+<p>When <code>JSRegExp</code> object is constructed, data array is initialized.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/2.png"></p>
+<p>Data array is consisted of 12 fields. Among them, <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/objects/js-regexp.h;l=70"><code>code</code></a> in 4th field and <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/objects/js-regexp.h;l=70"><code>bytecode</code></a> in 6th field store the code which is executed when <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec"><code>exec()</code></a> method is called, and they are initialized to <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/objects/js-regexp.h;l=245"><code>kUninitializedValue</code></a> (blue box). <code>bytecode</code> is compiled when <code>exec()</code> is called for the first time, and <code>code</code> is compiled after <code>exec()</code> is called a certain number (<a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/flags/flag-definitions.h;l=2454"><code>regexp_tier_up_ticks</code></a>) of times. <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/objects/js-regexp.h;l=131"><code>TierUpTick</code></a> in 11th field is initialized to <code>regexp_tier_up_ticks</code> (green box), and decreased by 1 each time <code>exec()</code> is called. When <code>TierupTick</code> reaches to 0, tier-up is proceeded and <code>code</code> is compiled.</p>
+<p><a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/flags/flag-definitions.h;l=2450"><code>regexp_tier_up</code></a> and <code>regexp_tier_up_ticks</code> can be controlled by run-time options.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/3.png"></p>
+<p><code>exec()</code> is handled by <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/runtime/runtime-regexp.cc;l=928"><code>RUNTIME_FUNCTION(Runtime_RegExpExec)</code></a>. Before tier-up, It goes into <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/runtime/runtime-regexp.cc;l=937"><code>RegExpExec()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/runtime/runtime-regexp.cc;l=909"><code>RegExp::Exec()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp.cc;l=334"><code>RegExpImpl::IrregexpExec()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp.cc;l=797"><code>RegExpImpl::IrregexpExecRaw()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp.cc;l=724"><code>IrregexpInterpreter::MatchForCallFromRuntime()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-interpreter.cc;l=1152"><code>IrregexpInterpreter::Match()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-interpreter.cc;l=1068"><code>IrregexpInterpreter::MatchInternal()</code></a> → <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-interpreter.cc;l=1101"><code>RawMatch()</code></a>, and bytecode is executed in <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-interpreter.cc;l=386"><code>RawMatch()</code></a>.</p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Stack-buffer-overflow-in-RawMatch"><a href="#Stack-buffer-overflow-in-RawMatch" class="headerlink" title="Stack buffer overflow in RawMatch()"></a>Stack buffer overflow in RawMatch()</h3><p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/4.png"></p>
+<p>Array in <code>bytecode</code> field of data array is inside of V8 sandbox, so we can arbitrarily edit bytecode using sandboxed AAW primitive, which means that we can execute <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-bytecodes.h;l=34">arbitrary bytecode</a>.</p>
+<p>Both of virtual <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-interpreter.cc;l=445"><code>registers</code></a> and <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/0c1231b6414d19468d6f7a35ff5b6167626f57a5:src/regexp/regexp-interpreter.cc;l=445"><code>backtrack_stack</code></a> used while executing bytecode are allocated in stack frame of <code>RawMatch()</code>. Bytecode accesses to the values in <code>registers</code> via their index. However, there is no bounds check when accessing to <code>registers</code>, thus we can read and write out of bounds of the stack frame. This would be stack buffer overflow, so we can just do ROP and get shell.</p>
+<h3 id="Get-binary-base-address-and-stack-address"><a href="#Get-binary-base-address-and-stack-address" class="headerlink" title="Get binary base address and stack address"></a>Get binary base address and stack address</h3><p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/5.png"></p>
+<p>We can get binary base address of <code>d8</code> from the return address of <code>RawMatch()</code> (red box), and get stack address from the stack frame pointer of <code>RawMatch()</code> (blue box) stored at <code>rbp</code>. Then, we can use the gadgets in <code>d8</code> binary and stack address for ROP.</p>
+<h3 id="Execute-command-via-execve"><a href="#Execute-command-via-execve" class="headerlink" title="Execute command via execve"></a>Execute command via execve</h3><p>We can execute arbitrary shell command by writing arbitrary command (e.g. <code>/bin/sh</code>) not to be overlapped with ROP chain and passing it to the first argument of <code>execve</code> system call.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/Escaping-V8-Sandbox/tree/main/via%20RegExp%20Bytecode/pwn.js"><code>pwn.js</code></a></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/Escaping-V8-Sandbox/refs/heads/main/via%20RegExp%20Bytecode/img/6.png"></p>
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/v8/v8/+/b9349d97fd44aec615307c9d00697152da95a66a">[regex] Check bounds on register access in interpreter</a> (Mar 22, 2024)</p>
+<p>Registers in the interpreter are stored on the stack&#x2F;heap outside the sandbox. The register index is stored in the bytecode, which is (not yet) in truested space.</p>
+</blockquote>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://issues.chromium.org/issues/330404819">V8 Sandbox escape via regexp - Chromium Issues</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rycbar77/V8-Sandbox-Escape-via-Regexp">V8-Sandbox-Escape-via-Regexp - rycbar77 (Github)</a></li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writings</a></li>
+        
+          <li><a href="/tags/">Tags</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RegExp-bytecode"><span class="toc-number">2.1.</span> <span class="toc-text">RegExp bytecode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Stack-buffer-overflow-in-RawMatch"><span class="toc-number">3.1.</span> <span class="toc-text">Stack buffer overflow in RawMatch()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-binary-base-address-and-stack-address"><span class="toc-number">3.2.</span> <span class="toc-text">Get binary base address and stack address</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execute-command-via-execve"><span class="toc-number">3.3.</span> <span class="toc-text">Execute command via execve</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">5.</span> <span class="toc-text">References</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&text=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&is_video=false&description=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&body=Check out this article: https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&title=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&name=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Escaping-V8-Sandbox-via-RegExp-Bytecode/&t=Escaping V8 Sandbox via RegExp Bytecode (Chromium &lt; 125.0.6382.3)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Seongjoon Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writings</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

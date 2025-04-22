@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="One day, I noticed that Issue 40069798 which was a type confusion bug in V8 was disclosed. This bug was awarded $15,000 for renderer RCE, but no CVE number was assigned because it was living in experi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Issue 41483297 (Type Confusion in V8)">
+<meta property="og:url" content="https://aaronsjcho.github.io/Issue-41483297/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="One day, I noticed that Issue 40069798 which was a type confusion bug in V8 was disclosed. This bug was awarded $15,000 for renderer RCE, but no CVE number was assigned because it was living in experi">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/6.png">
+<meta property="article:published_time" content="2024-04-20T03:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-15T04:05:05.266Z">
+<meta property="article:author" content="Seongjoon Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="renderer">
+<meta property="article:tag" content="v8">
+<meta property="article:tag" content="n-day">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Issue 41483297 (Type Confusion in V8)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXRLJ2S4LP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TXRLJ2S4LP');
+  </script>
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="Aaron's Note" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writings</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/Escaping-V8-Sandbox-via-RegExp-Bytecode/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/Escaping-V8-Sandbox-via-WebAssembly-JIT-Spraying-Part-2/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Issue-41483297/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Issue-41483297/&text=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Issue-41483297/&is_video=false&description=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Issue 41483297 (Type Confusion in V8)&body=Check out this article: https://aaronsjcho.github.io/Issue-41483297/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Issue-41483297/&name=Issue 41483297 (Type Confusion in V8)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Issue-41483297/&t=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Root-cause"><span class="toc-number">2.1.</span> <span class="toc-text">Root cause</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Proof-of-concept"><span class="toc-number">2.2.</span> <span class="toc-text">Proof of concept</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bisection"><span class="toc-number">2.3.</span> <span class="toc-text">Bisection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch"><span class="toc-number">2.4.</span> <span class="toc-text">Patch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Issue 41483297 (Type Confusion in V8)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Seongjoon Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-04-20T03:00:00.000Z" class="dt-published" itemprop="datePublished">2024-04-20</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/n-day/" rel="tag">n-day</a>, <a class="p-category" href="/tags/renderer/" rel="tag">renderer</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>One day, I noticed that <a target="_blank" rel="noopener" href="https://issues.chromium.org/issues/40069798">Issue 40069798</a> which was a type confusion bug in V8 was disclosed. This bug was awarded $15,000 for renderer RCE, but no CVE number was assigned because it was living in experimental feature and only could be triggered under <code>--harmony</code> or <code>--harmony-set-methods</code> flag in V8. While studying this bug, I tried fuzzing targeting Harmony Set methods in which it was living, with a light heart. Not long after, I unexpectedly got a same <code>DCHECK</code> failing crash, and could successfully achieve RCE in the same way. In this post, I will analyze and exploit my bug, <a target="_blank" rel="noopener" href="https://issues.chromium.org/issues/41483297">Issue 41483297</a>.</p>
+<p>Before reading, I recommend you to read <a href="https://aaronsjcho.github.io/Issue-40069798/">my post for Issue 40069798</a> first, because I will omit many overlapping contents in here.</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 22.04.5 LTS (WSL)</li>
+<li><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414">1976a3f375fb686a12d0577b0a01b164d8481414</a> (Dec 12, 2023)</li>
+</ul>
+<p>Run <a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/1-day/tree/main/Issue%2041483297/setup.zsh"><code>setup.zsh</code></a> in your working directory.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Root-cause"><a href="#Root-cause" class="headerlink" title="Root cause"></a>Root cause</h3><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Set/symmetricDifference"><code>Set.prototype.symmetricDifference()</code></a> method is handled by <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=8"><code>SetPrototypeSymmetricDifference()</code></a>. It calls <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/collections.tq;l=311"><code>GetKeysIterator()</code></a> to get <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=25"><code>keysIter</code></a> which is iterator of <code>other</code>, after getting <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=22"><code>table</code></a> of <code>receiver</code>. <code>GetKeysIterator()</code> internally <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/collections.tq;l=315">calls</a> <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Set/keys"><code>keys()</code></a> method of <code>other</code>. We can let arbitrary JavaScript code be executed at this point, by redefining <code>keys()</code> method of <code>other</code>. If we make table of <code>receiver</code> to be grown or shrunk by adding or deleting element, new table is allocated and its address is stored in the size field of old table. However, corrupted old <code>table</code> is used as it is after <code>GetKeysIterator()</code> is returned. It is <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=122">set to table of  new <code>Set</code></a> which is returned to us, going through <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=29"><code>resultSetData</code></a>, <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=32"><code>resultAndNumberOfElements.setData</code></a>, and <a target="_blank" rel="noopener" href="https://source.chromium.org/chromium/v8/v8/+/1976a3f375fb686a12d0577b0a01b164d8481414:src/builtins/set-symmetric-difference.tq;l=115"><code>shrunk</code></a>. This can cause type confusion.</p>
+<h3 id="Proof-of-concept"><a href="#Proof-of-concept" class="headerlink" title="Proof of concept"></a>Proof of concept</h3><p><a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/1-day/tree/main/Issue%2041483297/poc.js"><code>poc.js</code></a></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/1.png"></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/2.png"></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/3.png"></p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/4.png"></p>
+<p>We can see that the address of table of <code>a</code> (green box) is stored in the size field of table of <code>s</code> (blue box). Thus, we can get an <code>OrderedHashSet</code> object which is table of <code>a</code>, by reading <code>s.size</code>.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/5.png"></p>
+<h3 id="Bisection"><a href="#Bisection" class="headerlink" title="Bisection"></a>Bisection</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/v8/v8/+/9e0005d745067c5dab681d9c95483bc71c317e2d">[set-methods]Getting other before receiver’s table</a> (Aug 18, 2023)</p>
+<p>This CL fix the issue of clearing receiver in case of having user arbitraty code in the <code>other</code>.</p>
+</blockquote>
+<p>The bug has been existing since <code>symmetricDifference()</code> method was added, but was exposed when the previous bug was patched in the commit above.</p>
+<h3 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://chromium.googlesource.com/v8/v8/+/4d0ea4aac11c66481e0bf6c2b1e9308a1b442aff">[set-methods]Get receiver’s table after other’s keys()</a> (Dec 12, 2023)</p>
+<p>This CL fixes the issue of clearing receiver’s table in case of having user’s arbitrary code in other’s keys().</p>
+</blockquote>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><p><a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/1-day/tree/main/Issue%2041483297/shellcode.py"><code>shellcode.py</code></a> <a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/1-day/tree/main/Issue%2041483297/pwn.wat"><code>pwn.wat</code></a> <a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/1-day/tree/main/Issue%2041483297/wasm.py"><code>wasm.py</code></a></p>
+<figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~/wabt/bin/wat2wasm pwn.wat <span class="comment"># output: pwn.wasm</span></span><br><span class="line">python3 wasm.py <span class="comment"># output: [0x0, 0x61, 0x73, 0x6d, 0x1, 0x0, 0x0, 0x0, 0x1, 0x4, 0x1, 0x60, 0x0, 0x0, 0x3, 0x2, 0x1, 0x0, 0x7, 0x8, 0x1, 0x4, 0x6d, 0x61, 0x69, 0x6e, 0x0, 0x0, 0xa, 0xb1, 0x1, 0x1, 0xae, 0x1, 0x0, 0x42, 0xc8, 0xe2, 0x80, 0x86, 0x89, 0x92, 0xe4, 0xf5, 0x2, 0x42, 0xe6, 0xf0, 0xb2, 0x9b, 0x86, 0x8a, 0xe4, 0xf5, 0x2, 0x42, 0xb8, 0xdf, 0xe0, 0x9b, 0x96, 0x8c, 0xe4, 0xf5, 0x2, 0x42, 0xc8, 0x82, 0x83, 0x87, 0x82, 0x92, 0xe4, 0xf5, 0x2, 0x42, 0xc8, 0x8a, 0xbc, 0x91, 0x96, 0xcd, 0xdb, 0xf5, 0x2, 0x42, 0xd0, 0x90, 0xa5, 0xbc, 0x8e, 0x92, 0xe4, 0xf5, 0x2, 0x42, 0xc8, 0xe2, 0xd8, 0x87, 0x89, 0x92, 0xe4, 0xf5, 0x2, 0x42, 0x90, 0x91, 0xc5, 0x81, 0x8c, 0x92, 0xe4, 0xf5, 0x2, 0x42, 0xe6, 0xf0, 0xea, 0x81, 0x83, 0x8a, 0xe4, 0xf5, 0x2, 0x42, 0xb8, 0x99, 0x85, 0xca, 0xd5, 0x87, 0xe4, 0xf5, 0x6, 0x42, 0x90, 0x91, 0x85, 0x86, 0x8e, 0x84, 0xe4, 0xf5, 0x6, 0x42, 0xc8, 0x8a, 0x90, 0xca, 0xb4, 0x8a, 0xd4, 0xf5, 0x6, 0x42, 0xd0, 0x90, 0xa5, 0x84, 0x8e, 0x92, 0xe4, 0xf5, 0x6, 0x42, 0xc8, 0xe2, 0xec, 0x9e, 0x85, 0x8a, 0xe4, 0xf5, 0x6, 0x42, 0xc8, 0x92, 0x8a, 0x87, 0x89, 0x92, 0xe4, 0xf5, 0x6, 0x42, 0xc8, 0xe2, 0x80, 0x86, 0xbb, 0x87, 0xe4, 0xf5, 0x6, 0x42, 0x8f, 0x8a, 0xc0, 0x84, 0x89, 0x92, 0xa4, 0xc8, 0x90, 0x7f, 0xf, 0xb]</span></span><br></pre></td></tr></table></figure>
+
+<p>You have to install <code>/bin/xcalc</code> by running <code>sudo apt install -y x11-apps</code> before executing <a target="_blank" rel="noopener" href="https://github.com/aaronsjcho/1-day/tree/main/Issue%2041483297/pwn.js"><code>pwn.js</code></a> if you are using WSL.</p>
+<p><img src="https://raw.githubusercontent.com/aaronsjcho/1-day/refs/heads/main/Issue%2041483297/img/6.png"></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://issues.chromium.org/issues/41483297">Security: Type confusion in Harmony Set methods (Leads to RCE) - Chromium Issues</a></li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writings</a></li>
+        
+          <li><a href="/tags/">Tags</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Root-cause"><span class="toc-number">2.1.</span> <span class="toc-text">Root cause</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Proof-of-concept"><span class="toc-number">2.2.</span> <span class="toc-text">Proof of concept</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bisection"><span class="toc-number">2.3.</span> <span class="toc-text">Bisection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch"><span class="toc-number">2.4.</span> <span class="toc-text">Patch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">4.</span> <span class="toc-text">References</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/Issue-41483297/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/Issue-41483297/&text=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/Issue-41483297/&is_video=false&description=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Issue 41483297 (Type Confusion in V8)&body=Check out this article: https://aaronsjcho.github.io/Issue-41483297/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/Issue-41483297/&title=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/Issue-41483297/&name=Issue 41483297 (Type Confusion in V8)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/Issue-41483297/&t=Issue 41483297 (Type Confusion in V8)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Seongjoon Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writings</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tags</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
