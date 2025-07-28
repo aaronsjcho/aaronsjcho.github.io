@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="In this post, I will outline an exploit technique that allows us to escape the V8 sandbox via the backing store of ArrayBuffer and WebAssembly code space. This leads us to arbitrary code execution sta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)">
+<meta property="og:url" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="In this post, I will outline an exploit technique that allows us to escape the V8 sandbox via the backing store of ArrayBuffer and WebAssembly code space. This leads us to arbitrary code execution sta">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/1.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/2.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/3.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/4.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/5.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/6.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/7.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/8.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/9.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/10.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/11.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/12.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/13.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/14.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/15.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/16.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/pwn.png">
+<meta property="article:published_time" content="2023-04-29T19:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-28T05:56:27.770Z">
+<meta property="article:author" content="Seongjoon Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="v8">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/04/30/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-2/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&text=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&is_video=false&description=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&body=Check out this article: https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&name=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&t=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Backing-store-of-ArrayBuffer"><span class="toc-number">2.1.</span> <span class="toc-text">Backing store of ArrayBuffer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-functions-in-WebAssembly-module"><span class="toc-number">2.2.</span> <span class="toc-text">Execution flow of functions in WebAssembly module</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploit"><span class="toc-number">3.</span> <span class="toc-text">Exploit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-address-of-WebAssembly-code-space"><span class="toc-number">3.1.</span> <span class="toc-text">Get address of WebAssembly code space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Overwrite-backing-store-of-ArrayBuffer"><span class="toc-number">3.2.</span> <span class="toc-text">Overwrite backing store of ArrayBuffer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Write-shellcode-to-WebAssembly-code-space"><span class="toc-number">3.3.</span> <span class="toc-text">Write shellcode to WebAssembly code space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execute-shellcode"><span class="toc-number">3.4.</span> <span class="toc-text">Execute shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Seongjoon Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-29T19:00:00.000Z" class="dt-published" itemprop="datePublished">2023-04-29</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/N-day/">N-day</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>In this post, I will outline an exploit technique that allows us to escape the V8 sandbox via the backing store of <code>ArrayBuffer</code> and WebAssembly code space. This leads us to arbitrary code execution starting from sandboxed exploit primitives.</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 20.04 (WSL)</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/0ac7e1203fcb957851887fb140dc8a41139846a5"><code>0ac7e1203fcb957851887fb140dc8a41139846a5</code></a> (Feb 15, 2022)</li>
+</ul>
+<p>Place <a href="sandbox.diff"><code>sandbox.diff</code></a> and <a href="setup.py"><code>setup.py</code></a> in the working directory and run <code>setup.py</code>.</p>
+<p><a href="sandbox.diff"><code>Sandbox.diff</code></a> is identical to <a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/4a12cb1022ba335ce087dcfe31b261355524b3bf">this commit</a>, which introduced a memory corruption API that enables us to implement exploit primitives working inside the V8 sandbox.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Backing-store-of-ArrayBuffer"><a href="#Backing-store-of-ArrayBuffer" class="headerlink" title="Backing store of ArrayBuffer"></a>Backing store of ArrayBuffer</h3><p>The <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a> object in JavaScript is managed by the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/js-array-buffer.tq#L14"><code>JSArrayBuffer</code></a> class. <code>JSArrayBuffer</code> has a pointer named <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/js-array-buffer.tq#L18"><code>backing_store</code></a>, pointing to heap memory containing the actual value stored in the <code>ArrayBuffer</code>.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/1.png"></p>
+<p>We have to use <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> or <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DataView"><code>DataView</code></a> to access the values stored in an <code>ArrayBuffer</code>. For example, we can store an 8-byte value with <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DataView/setBigUint64"><code>DataView.prototype.setBigUint64()</code></a>, managed by <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/builtins/data-view.tq#L869"><code>DataViewPrototypeSetBigUint64()</code></a>. It goes into <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/builtins/data-view.tq#L874"><code>DataViewSet()</code></a> → <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/builtins/data-view.tq#L752"><code>StoreDataViewBigInt()</code></a> → <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/builtins/data-view.tq#L668"><code>StoreDataView64()</code></a>, and <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/builtins/data-view.tq#L590"><code>StoreDataView64()</code></a> stores each bit of the value in the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/builtins/data-view.tq#L593"><code>backing_store_ptr</code></a> of the <code>buffer</code>.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/2.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/3.png"></p>
+<p>If we overwrite the backing store pointer of <code>ArrayBuffer</code> with an arbitrary address, we can access the address and read or overwrite the value stored at the address.</p>
+<h3 id="Execution-flow-of-functions-in-WebAssembly-module"><a href="#Execution-flow-of-functions-in-WebAssembly-module" class="headerlink" title="Execution flow of functions in WebAssembly module"></a>Execution flow of functions in WebAssembly module</h3><p>When a Wasm module is constructed, <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-code-manager.cc#L2194"><code>code_space</code></a> for the Wasm code is allocated, and a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-code-manager.cc#L1582"><code>jump_table</code></a> is created at the very beginning of the code space. The jump table is responsible for determining the execution flow of functions of the Wasm module. The permission of the code space is set to <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-code-manager.cc#L1924">RWX</a> because compiled Wasm code has to be written to and executed in this space.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ echo &#x27;(module (func $f1 (export &quot;f1&quot;)) (func $f2 (export &quot;f2&quot;)) (func $f3 (export &quot;f3&quot;)))&#x27; &gt;test.wat</span><br><span class="line">$ wat2wasm test.wat # output: test.wasm</span><br><span class="line">$ python3 -q</span><br><span class="line">&gt;&gt;&gt; list(open(&quot;test.wasm&quot;, &quot;rb&quot;).read())</span><br><span class="line">[0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 4, 3, 0, 0, 0, 7, 16, 3, 2, 102, 49, 0, 0, 2, 102, 50, 0, 1, 2, 102, 51, 0, 2, 10, 10, 3, 2, 0, 11, 2, 0, 11, 2, 0, 11]</span><br></pre></td></tr></table></figure>
+
+<p><code>test.wat</code> defines a Wasm module which contains three functions, all of which are exported to JS.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">d8&gt; wasm_src = [0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 4, 3, 0, 0, 0, 7, 16, 3, 2, 102, 49, 0, 0, 2, 102, 50, 0, 1, 2, 102, 51, 0, 2, 10, 10, 3, 2, 0, 11, 2, 0, 11, 2, 0, 11]</span><br><span class="line">[0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 4, 3, 0, 0, 0, 7, 16, 3, 2, 102, 49, 0, 0, 2, 102, 50, 0, 1, 2, 102, 51, 0, 2, 10, 10, 3, 2, 0, 11, 2, 0, 11, 2, 0, 11]</span><br><span class="line">d8&gt; wasm_module = new WebAssembly.Module(new Uint8Array(wasm_src))</span><br><span class="line">[object WebAssembly.Module]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/4.png"></p>
+<p>The jump table is consisted of <code>jmp</code> instructions, each of which corresponds to each function of the Wasm module.</p>
+<p>We can access to the Wasm functions exported to JS with <a target="_blank" rel="noopener" href="https://developer.mozilla.org/docs/WebAssembly/Reference/JavaScript_interface/Instance/exports"><code>WebAssembly.Instance.prototype.exports</code></a>.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/5.png"></p>
+<p>Each function is managed by <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/js-function.tq#L23"><code>JSFunction</code></a> class. <code>JSFunction</code> has an accessor named <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/js-function.tq#L27"><code>code</code></a> pointing to a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/code.h#L46"><code>CodeDataContainer</code></a> object, which has an accessor named <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/code.h#L88"><code>code_entry_point</code></a> pointing to where the instruction pointer moves when the function is called.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/6.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/7.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/8.png"></p>
+<p>At this point, <code>rdi</code> holds the address of the <code>Function</code> object.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/9.png"></p>
+<p>The instructions from here are responsible for getting the call target corresponding to the function called, via</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/js-function.tq#L24"><code>shared_function_info</code></a> from <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/js-function.tq#L23"><code>JSFunction</code></a><br>→ <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/shared-function-info.tq#L55"><code>function_data</code></a> from <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/shared-function-info.tq#L50"><code>SharedFunctionInfo</code></a><br>→ <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-objects.tq#L48"><code>internal</code></a> from <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-objects.tq#L54"><code>WasmExportedFunctionData</code></a><br>→ <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/objects/foreign.tq#L7"><code>foreign_address</code></a> from <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-objects.tq#L31"><code>WasmInternalFunction</code></a>.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/10.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/11.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/12.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/13.png"></p>
+<p>Finally, the instruction pointer moves to the third entry of the jump table. It corresponds to <code>f3</code> which is the third function of the module.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/14.png"></p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><h3 id="Get-address-of-WebAssembly-code-space"><a href="#Get-address-of-WebAssembly-code-space" class="headerlink" title="Get address of WebAssembly code space"></a>Get address of WebAssembly code space</h3><p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/7c369ec82136ac0afc559aaa0b31614840fcc0a0/src/wasm/wasm-objects.h#L317"><code>WasmInstanceObject</code></a> has an accessor named <code>jump_table_start</code> pointing to the jump table of the corresponding Wasm module. The jump table is located at the very beginning of the Wasm code space, so the address of the jump table is identical to that of the code space.</p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/15.png"></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/16.png"></p>
+<p>We can obtain the address of the <code>WasmInstanceObject</code> object with <code>addrof</code> primitive, and read the value stored in <code>jump_table_start</code> field to obtain the address of the code space.</p>
+<h3 id="Overwrite-backing-store-of-ArrayBuffer"><a href="#Overwrite-backing-store-of-ArrayBuffer" class="headerlink" title="Overwrite backing store of ArrayBuffer"></a>Overwrite backing store of ArrayBuffer</h3><p>We can obtain the address of an <code>ArrayBuffer</code> with <code>addrof</code> primitive, and overwrite <code>backing_store</code> field with an arbitrary 8-byte address, pointing where we want to read from or write to. The address doesn’t have to be inside of the V8 sandbox, thus we can perform unsandboxed AAR&#x2F;AAW via this corrupted <code>ArrayBuffer</code>.</p>
+<h3 id="Write-shellcode-to-WebAssembly-code-space"><a href="#Write-shellcode-to-WebAssembly-code-space" class="headerlink" title="Write shellcode to WebAssembly code space"></a>Write shellcode to WebAssembly code space</h3><p>With the unsandboxed AAW, we can write our shellcode to the Wasm code space. The code space has both of writing and executing permissions, so that we can execute our shellcode later.</p>
+<h3 id="Execute-shellcode"><a href="#Execute-shellcode" class="headerlink" title="Execute shellcode"></a>Execute shellcode</h3><p>Calling the exported function moves the instruction pointer to the Wasm jump table, where would be lying our shellcode.</p>
+<p><a href="pwn.wat"><code>pwn.wat</code></a> <a href="shellcode.py"><code>shellcode.py</code></a> <a href="pwn.js"><code>pwn.js</code></a></p>
+<p><img src="/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/pwn.png"></p>
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/f759872d52093d1ac2b531f7e8fa956264b57ad9">[wasm] Ship code protection via mprotect</a> (Feb 15, 2022)</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Backing-store-of-ArrayBuffer"><span class="toc-number">2.1.</span> <span class="toc-text">Backing store of ArrayBuffer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-functions-in-WebAssembly-module"><span class="toc-number">2.2.</span> <span class="toc-text">Execution flow of functions in WebAssembly module</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploit"><span class="toc-number">3.</span> <span class="toc-text">Exploit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Get-address-of-WebAssembly-code-space"><span class="toc-number">3.1.</span> <span class="toc-text">Get address of WebAssembly code space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Overwrite-backing-store-of-ArrayBuffer"><span class="toc-number">3.2.</span> <span class="toc-text">Overwrite backing store of ArrayBuffer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Write-shellcode-to-WebAssembly-code-space"><span class="toc-number">3.3.</span> <span class="toc-text">Write shellcode to WebAssembly code space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execute-shellcode"><span class="toc-number">3.4.</span> <span class="toc-text">Execute shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&text=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&is_video=false&description=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&body=Check out this article: https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&title=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&name=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/&t=Escaping V8 Sandbox via Backing Store of ArrayBuffer and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Seongjoon Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
