@@ -27,7 +27,7 @@ function hex(i) { return `0x${i.toString(16)}`; }
 function addrof(obj) { return Sandbox.getAddressOf(obj); }
 
 // if value isn't provided, read bigint from addr
-// if value is provided, write bigint value to addr
+// otherwise, write bigint value to addr
 function rw(addr, value = NaN) {
     let view = new DataView(new Sandbox.MemoryView(addr, kBigIntSize));
 

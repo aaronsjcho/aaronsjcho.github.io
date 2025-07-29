@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)</title>
+      <link href="/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"/>
+      <url>/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/</url>
+      
+        <content type="html"><![CDATA[<p>Because the external code space is enabled in the <a href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">patch</a> for <a href="/2023/07/01/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1">part 1</a>, the execution flow of the Turbofan-compiled function is slightly altered. Still, it’s possible to hijack the execution flow to execute arbitrary code if we have sandboxed exploit primitives.</p><h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul><li>Ubuntu 20.04 (WSL)</li><li><a href="https://github.com/v8/v8/commit/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4"><code>4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4</code></a> (Jul 11, 2023)</li></ul><p>Run <a href="setup.py"><code>setup.py</code></a> in the working directory.</p><h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Execution-flow-of-Turbofan-compiled-function"><a href="#Execution-flow-of-Turbofan-compiled-function" class="headerlink" title="Execution flow of Turbofan-compiled function"></a>Execution flow of Turbofan-compiled function</h3><p><a href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/js-function.tq#L32"><code>JSFunction</code></a> has an accessor named <a href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/js-function.tq#L36"><code>code</code></a>, which points to a <a href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/code.h#L50"><code>Code</code></a> object. The <code>Code</code> has a pointer named <a href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/code.h#L78"><code>instruction_start</code></a>, which points to the address where the function’s instructions begin.</p><p><img src="/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/1.png"></p><p><img src="/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/2.png"></p><p>When the compiled function is called, the function call handler gets the <code>instruction_start</code> pointer and jumps to that address.</p><p><img src="/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/3.png"></p><p><img src="/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/4.png"></p><h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Hijack-execution-flow"><a href="#Hijack-execution-flow" class="headerlink" title="Hijack execution flow"></a>Hijack execution flow</h3><p>The <code>Code</code> object is inside the V8 sandbox, so we can overwrite the <code>instruction_start</code> field with an arbitrary address which we want <code>rip</code> to jump to, using the sandboxed exploit primitives.</p><p><a href="shellcode.py"><code>shellcode.py</code></a> <a href="pwn.js"><code>pwn.js</code></a></p><p><img src="/2023/07/02/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/pwn.png"></p><h2 id="Bisection"><a href="#Bisection" class="headerlink" title="Bisection"></a>Bisection</h2><blockquote><p><a href="https://github.com/v8/v8/commit/fd608d18b59eaaafa8928fe49fc7624f31bcccfa">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 26, 2022)</p><p><a href="https://github.com/v8/v8/commit/aefa66da282145f1195759efc15a00964da2b9dd">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 26, 2022)</p><p><a href="https://github.com/v8/v8/commit/e7ffb2570ce4ac8c0a1b9a1dfd0b3fcb3227bba9">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 27, 2022)</p><p><a href="https://github.com/v8/v8/commit/f9ae535aca6d92830ffa7a9bf83ddeeab4602d78">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 28, 2022)</p><p><a href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 28, 2022)</p></blockquote><h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote><p><a href="https://github.com/v8/v8/commit/c8d039b05081b474ef751411a5c76ca01900e49a">[sandbox] Enable code pointer sandboxing</a> (Jul 11, 2023)</p><p><a href="https://github.com/v8/v8/commit/bc795ebd90a5a7c957b644da5fac369eb88aa87a">Revert “[sandbox] Enable code pointer sandboxing”</a> (Jul 11, 2023)</p><p><a href="https://github.com/v8/v8/commit/7df23d5163a10a12e4b4262dd4e78cfb7ec97be0">Reland “[sandbox] Enable code pointer sandboxing”</a> (Jul 11, 2023)</p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> N-day </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> chromium </tag>
+            
+            <tag> v8 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)</title>
       <link href="/2023/07/01/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/"/>
       <url>/2023/07/01/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/</url>
