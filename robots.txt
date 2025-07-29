@@ -1,13 +1,7 @@
 User-agent: *
 
 Allow: /
-Allow: /page/
-Allow: /archives/
-Allow: /schedule/
-Allow: /tags/
 
-Disallow: /js/
-Disallow: /css/
-Disallow: /images/
+Disallow: null
 
 Sitemap: https://aaronsjcho.github.io/sitemap.xml
