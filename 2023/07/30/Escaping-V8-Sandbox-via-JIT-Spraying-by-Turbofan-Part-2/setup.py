@@ -2,6 +2,7 @@ import os
 from requests import get
 from subprocess import run
 
+
 depot_tools_git = "https://chromium.googlesource.com/chromium/tools/depot_tools"
 depot_tools_path = "depot_tools"
 
@@ -17,6 +18,7 @@ debug_args = """v8_expose_memory_corruption_api = true
 is_component_build = false
 v8_optimized_debug = false
 """
+debug_targets = ["d8"]
 
 release_outdir = "out/release"
 release_args = """v8_expose_memory_corruption_api = true
@@ -24,6 +26,8 @@ is_debug = false
 v8_enable_object_print = true
 v8_symbol_level = 2
 """
+release_targets = ["d8", "torque-language-server"]
+
 
 # get depot_tools checkout
 if not os.path.exists(depot_tools_path):
@@ -68,7 +72,7 @@ if not os.path.exists(debug_outdir):
 with open(f"{debug_outdir}/args.gn", "w") as f:
     f.write(debug_args)
 run(["gn", "gen", debug_outdir], env=env)
-run(["autoninja", "-C", debug_outdir, "d8"], env=env)
+run(["autoninja", "-C", debug_outdir] + debug_targets, env=env)
 
 # release build
 if not os.path.exists(release_outdir):
@@ -76,4 +80,4 @@ if not os.path.exists(release_outdir):
 with open(f"{release_outdir}/args.gn", "w") as f:
     f.write(release_args)
 run(["gn", "gen", release_outdir], env=env)
-run(["autoninja", "-C", release_outdir, "d8", "torque-language-server"], env=env)
+run(["autoninja", "-C", release_outdir] + release_targets, env=env)
