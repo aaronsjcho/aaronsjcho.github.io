@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/tags/index.html</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/search/index.html</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/categories/index.html</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/about/index.html</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/04/30/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-2/</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/05/06/CVE-2019-5782/</loc>
+    
+    <lastmod>2025-10-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  <url>
+    <loc>https://aaronsjcho.github.io/</loc>
+    <lastmod>2025-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/tags/chromium/</loc>
+    <lastmod>2025-10-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/tags/v8/</loc>
+    <lastmod>2025-10-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/categories/N-day/</loc>
+    <lastmod>2025-10-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+</urlset>

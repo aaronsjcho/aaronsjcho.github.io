@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="In this post, I will outline an exploit technique that enables us to escape the V8 sandbox via JIT spraying by Turbofan. This leads us to arbitrary code execution starting from sandboxed exploit primi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)">
+<meta property="og:url" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="In this post, I will outline an exploit technique that enables us to escape the V8 sandbox via JIT spraying by Turbofan. This leads us to arbitrary code execution starting from sandboxed exploit primi">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/1.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/2.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/3.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/4.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/5.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/6.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/7.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/8.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/9.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/10.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/11.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/12.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/13.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/14.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/15.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/16.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/17.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/18.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/19.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/20.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/pwn.png">
+<meta property="article:published_time" content="2023-07-29T03:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-24T11:15:59.232Z">
+<meta property="article:author" content="Seongjoon Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="v8">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/05/06/CVE-2019-5782/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&text=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)&body=Check out this article: https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&name=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&t=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-Turbofan-compiled-function"><span class="toc-number">2.1.</span> <span class="toc-text">Execution flow of Turbofan-compiled function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Optimising-CreateArrayLiteral"><span class="toc-number">2.2.</span> <span class="toc-text">Optimising CreateArrayLiteral</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spray-shellcode"><span class="toc-number">3.1.</span> <span class="toc-text">Spray shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hijack-execution-flow"><span class="toc-number">3.2.</span> <span class="toc-text">Hijack execution flow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Seongjoon Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-07-29T03:00:00.000Z" class="dt-published" itemprop="datePublished">2023-07-29</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/N-day/">N-day</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>In this post, I will outline an exploit technique that enables us to escape the V8 sandbox via JIT spraying by Turbofan. This leads us to arbitrary code execution starting from sandboxed exploit primitives.</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 20.04 (WSL)</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05"><code>17f686b1b7a6550b3a6e20a4f4455c39f6cebd05</code></a> (Jan 28, 2022)</li>
+</ul>
+<p>Place <a href="sandbox.diff"><code>sandbox.diff</code></a> and <a href="setup.py"><code>setup.py</code></a> in the working directory and run <code>setup.py</code>.</p>
+<p><code>sandbox.diff</code> is identical to <a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/4a12cb1022ba335ce087dcfe31b261355524b3bf">this commit</a>, which introduced a memory corruption API that enables us to implement exploit primitives working inside the V8 sandbox.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Execution-flow-of-Turbofan-compiled-function"><a href="#Execution-flow-of-Turbofan-compiled-function" class="headerlink" title="Execution flow of Turbofan-compiled function"></a>Execution flow of Turbofan-compiled function</h3><p>Function in JavaScript is managed by the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/js-function.tq#L23"><code>JSFunction</code></a> class. It has an accessor named <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/js-function.tq#L28"><code>code</code></a> which points to a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/code.h#L215"><code>Code</code></a> object.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/1.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/2.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/3.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/4.png"></p>
+<p>We can follow the execution flow by setting a read watchpoint on the <code>code</code> field of the function.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/5.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/6.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/7.png"></p>
+<p>At this point, <code>rcx</code> holds the address of the <code>Code</code> object. The value at <code>rcx + 0x1b</code> indicates the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/code.h#L630">flags</a> of the function. The code above checks if <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/code.h#L686"><code>IsOffHeapTrampoline</code></a>, which is the 30th bit of the flags, is set. If true, it calculates the start address of the instructions of the function by simply adding <code>0x3f</code> to the address of the <code>Code</code> object, and jumps to the instructions.</p>
+<p>If we can overwrite the <code>code</code> field of the function, we can divert the execution flow to an arbitrary address inside the V8 sandbox.</p>
+<h3 id="Optimising-CreateArrayLiteral"><a href="#Optimising-CreateArrayLiteral" class="headerlink" title="Optimising CreateArrayLiteral"></a>Optimising CreateArrayLiteral</h3><p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/8.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/9.png"></p>
+<p><code>CreateArrayLiteral</code> is a bytecode instruction used to create a new array in a function. The function contains an <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/literal-objects.tq#L5"><code>ArrayBoilerplateDescription</code></a> object, which serves as a template for the array created in the function, in its constant pool.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/10.png"></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/objects/literal-objects.tq#L7"><code>constant_elements</code></a> is a <code>FixedArrayBase</code> object (<code>FixedArray</code>, <code>FixedInt64Array</code>, <code>FixedDoubleArray</code>, …) depending on the type of elements of the array. <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/runtime/runtime-literals.cc#L452"><code>CreateArrayLiteral()</code></a> copies <code>constant_elements</code> to <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/runtime/runtime-literals.cc#L465"><code>copied_elements_values</code></a> and uses them to <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/runtime/runtime-literals.cc#L511">create</a> a new array.</p>
+<p>When Turbofan compiles the function, the <code>CreateArrayLiteral</code> instruction is converted to a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/bytecode-graph-builder.cc#L2329"><code>JSCreateLiteralArray</code></a> node, which also references the boilerplate object.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/11.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/12.png"></p>
+<p><code>JSCreateLiteralArray</code> node is lowered in the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/pipeline.cc#L1493"><code>TypedLoweringPhase</code></a>. <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1096"><code>JSCreateLowering::ReduceJSCreateLiteralArrayOrObject()</code></a> calls <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1111"><code>JSCreateLowering::TryAllocateFastLiteral()</code></a> to optimise the allocation of an array in case <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1105"><code>feedback</code></a> is sufficient. <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1666"><code>JSCreateLowering::TryAllocateFastLiteral()</code></a> calls <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1808"><code>JSCreateLowering::TryAllocateFastLiteralElements()</code></a> to optimise the allocation of the elements array. <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1834"><code>JSCreateLowering::TryAllocateFastLiteralElements()</code></a> gets <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1843"><code>boilerplate_elements</code></a> from the boilerplate object, and if <code>boilerplate_elements</code> is a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1858"><code>FixedDoubleArray</code></a> object, it adds <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/js-create-lowering.cc#L1867"><code>NumberConstant</code></a> nodes for all elements.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/13.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/14.png"></p>
+<p>These constants are lowered in <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/pipeline.cc#L1577"><code>SimplifiedLoweringPhase</code></a>. When <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L1992"><code>RepresentationSelector::VisitNode</code></a> encounters a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L3383"><code>StoreElement</code></a> node, it calls <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L3400"><code>RepresentationSelector::ProcessInput()</code></a> for each input node. For the elements of the array, <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L4191"><code>RepresentationSelector::ProcessInput()</code></a> calls <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L4196"><code>RepresentationSelector::ConvertInput()</code></a> → <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L895"><code>RepresentationChanger::GetRepresentationFor()</code></a> → <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/representation-change.cc#L223"><code>RepresentationChanger::GetFloat64RepresentationFor()</code></a>, and <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/representation-change.cc#L690"><code>RepresentationChanger::GetFloat64RepresentationFor()</code></a> creates a new <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/representation-change.cc#L702"><code>Float64Constant</code></a> node. The old <code>NumberConstant</code> node is <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/simplified-lowering.cc#L897">replaced</a> with the new <code>Float64Constant</code> node.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/15.png"></p>
+<p>The <code>Float64Constant</code> node is handled by <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/instruction-selector.cc#L1431"><code>InstructionSelectorT::VisitConstant()</code></a> in <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/pipeline.cc#L2165"><code>InstructionSelectionPhase</code></a>. <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/instruction-selector.cc#L2926"><code>InstructionSelectorT::VisitConstant()</code></a> calls <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/instruction-selector.cc#L2930"><code>OperandGeneratorT::DefineAsConstant()</code></a> → <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/instruction-selector-impl.h#L111"><code>InstructionSequence::AddConstant()</code></a>, and <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/instruction.h#L1726">inserts</a> a pair of register and constant into <code>constants_</code>.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/16.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/17.png"></p>
+<p>This pair is assembled to the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/x64/code-generator-x64.cc#L5011"><code>mov</code></a> instruction by <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/backend/x64/code-generator-x64.cc#L4847"><code>CodeGenerator::AssembleMove()</code></a> in <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/17f686b1b7a6550b3a6e20a4f4455c39f6cebd05/src/compiler/pipeline.cc#L2385"><code>AssembleCodePhase</code></a>. The constant is inserted into the assembly code in the form of <code>uint64_t</code>.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/18.png"></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/19.png"></p>
+<p>In conclusion, we can insert arbitrary 8-byte floating-point numbers, which can be potentially used for <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/JIT_spraying">JIT spraying</a>, into the assembly code of the function.</p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Spray-shellcode"><a href="#Spray-shellcode" class="headerlink" title="Spray shellcode"></a>Spray shellcode</h3><p>We can execute up to 8-byte shellcode by inserting it into the assembly code of the Turbofan-compiled function and moving <code>rip</code> to where the shellcode lies by overwriting the <code>code</code> pointer of the <code>JSFunction</code> object.</p>
+<p>However, it’d be impossible to do what we want to, for example, <code>execve(&quot;/bin/sh&quot;, 0, 0)</code>, with only 8 bytes of assembly code. Therefore, we must chain several shellcode segments using a relative <a target="_blank" rel="noopener" href="https://www.felixcloutier.com/x86/jmp"><code>jmp</code></a> instruction. The distances between the floating-point numbers in the code are consistent, so we can make each segment jump to the next one by constructing each one with a 6-byte shellcode and a 2-byte <code>jmp</code> instruction.</p>
+<p><a href="shellcode.py"><code>shellcode.py</code></a></p>
+<h3 id="Hijack-execution-flow"><a href="#Hijack-execution-flow" class="headerlink" title="Hijack execution flow"></a>Hijack execution flow</h3><p>If the <code>IsOffHeapTrampoline</code> flag of the <code>Code</code> object is set, <code>rip</code> takes an unexpected path.</p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/20.png"></p>
+<p>In this case, we fail to divert the execution flow of the function to the intended path.</p>
+<p><code>rcx + 0x1b</code> would be in the middle of the assembly instructions, thus it’s not a good idea to attempt to control the value there. Instead, we can add a dummy element that changes the offset of the shellcode from the instruction start to the array constructed in the Turbofan-compiled function, and hope it passes the test.</p>
+<p><a href="pwn.js"><code>pwn.js</code></a></p>
+<p><img src="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/pwn.png"></p>
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/fd608d18b59eaaafa8928fe49fc7624f31bcccfa">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 26, 2022)</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/aefa66da282145f1195759efc15a00964da2b9dd">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 26, 2022)</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/e7ffb2570ce4ac8c0a1b9a1dfd0b3fcb3227bba9">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 27, 2022)</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/f9ae535aca6d92830ffa7a9bf83ddeeab4602d78">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 28, 2022)</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 28, 2022)</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-Turbofan-compiled-function"><span class="toc-number">2.1.</span> <span class="toc-text">Execution flow of Turbofan-compiled function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Optimising-CreateArrayLiteral"><span class="toc-number">2.2.</span> <span class="toc-text">Optimising CreateArrayLiteral</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spray-shellcode"><span class="toc-number">3.1.</span> <span class="toc-text">Spray shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hijack-execution-flow"><span class="toc-number">3.2.</span> <span class="toc-text">Hijack execution flow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&text=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)&body=Check out this article: https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&name=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/&t=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Seongjoon Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'aaronsjcho/aaronsjcho.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'github-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+</body>
+</html>
