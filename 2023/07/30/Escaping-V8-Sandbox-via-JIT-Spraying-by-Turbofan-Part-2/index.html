@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang=en>
+<html lang="en">
 <head>
     <!-- so meta -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
     <meta name="description" content="Because the external code space is enabled in the patch for part 1, the execution flow of the Turbofan-compiled function is slightly altered. Still, it’s possible to hijack the execution flow to execu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;&#x3D; V8 &lt; 11.7.154)">
@@ -97,7 +97,7 @@
      -->
       </ul>
     </span>
-    <br/>
+    <br>
     <span id="actions">
       <ul>
         
@@ -114,20 +114,20 @@
       <span id="i-top" class="info" style="display:none;">Back to top</span>
       <span id="i-share" class="info" style="display:none;">Share post</span>
     </span>
-    <br/>
+    <br>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&text=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&text=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
   <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)&body=Check out this article: https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&name=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&t=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&name=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&t=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -184,13 +184,13 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <p>Because the external code space is enabled in the <a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">patch</a> for <a href="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/" title="Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)">part 1</a>, the execution flow of the Turbofan-compiled function is slightly altered. Still, it’s possible to hijack the execution flow to execute arbitrary code if we have sandboxed exploit primitives.</p>
+    <p>Because the external code space is enabled in the <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">patch</a> for <a href="/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/" title="Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 1 (V8 &lt; 10.0.52)">part 1</a>, the execution flow of the Turbofan-compiled function is slightly altered. Still, it’s possible to hijack the execution flow to execute arbitrary code if we have sandboxed exploit primitives.</p>
 <h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
 <li>Ubuntu 20.04 (WSL)</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4"><code>4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4</code></a> (Jul 11, 2023)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4"><code>4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4</code></a> (Jul 11, 2023)</li>
 </ul>
 <p>Run <a href="setup.py"><code>setup.py</code></a> in the working directory.</p>
-<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Execution-flow-of-Turbofan-compiled-function"><a href="#Execution-flow-of-Turbofan-compiled-function" class="headerlink" title="Execution flow of Turbofan-compiled function"></a>Execution flow of Turbofan-compiled function</h3><p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/js-function.tq#L32"><code>JSFunction</code></a> has an accessor named <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/js-function.tq#L36"><code>code</code></a>, which points to a <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/code.h#L50"><code>Code</code></a> object. The <code>Code</code> has a pointer named <a target="_blank" rel="noopener" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/code.h#L78"><code>instruction_start</code></a>, which points to the address where the function’s instructions begin.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Execution-flow-of-Turbofan-compiled-function"><a href="#Execution-flow-of-Turbofan-compiled-function" class="headerlink" title="Execution flow of Turbofan-compiled function"></a>Execution flow of Turbofan-compiled function</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/js-function.tq#L32"><code>JSFunction</code></a> has an accessor named <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/js-function.tq#L36"><code>code</code></a>, which points to a <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/code.h#L50"><code>Code</code></a> object. The <code>Code</code> has a pointer named <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/4512c6eb7189c21f39420ddf8d9ff4f05a4a39b4/src/objects/code.h#L78"><code>instruction_start</code></a>, which points to the address where the function’s instructions begin.</p>
 <p><img src="/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/1.png"></p>
 <p><img src="/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/2.png"></p>
 <p>When the compiled function is called, the function call handler gets the <code>instruction_start</code> pointer and jumps to that address.</p>
@@ -200,16 +200,16 @@
 <p><a href="shellcode.py"><code>shellcode.py</code></a> <a href="pwn.js"><code>pwn.js</code></a></p>
 <p><img src="/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/pwn.png"></p>
 <h2 id="Bisection"><a href="#Bisection" class="headerlink" title="Bisection"></a>Bisection</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/fd608d18b59eaaafa8928fe49fc7624f31bcccfa">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 26, 2022)</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/aefa66da282145f1195759efc15a00964da2b9dd">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 26, 2022)</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/e7ffb2570ce4ac8c0a1b9a1dfd0b3fcb3227bba9">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 27, 2022)</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/f9ae535aca6d92830ffa7a9bf83ddeeab4602d78">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 28, 2022)</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 28, 2022)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/fd608d18b59eaaafa8928fe49fc7624f31bcccfa">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 26, 2022)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/aefa66da282145f1195759efc15a00964da2b9dd">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 26, 2022)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/e7ffb2570ce4ac8c0a1b9a1dfd0b3fcb3227bba9">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 27, 2022)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/f9ae535aca6d92830ffa7a9bf83ddeeab4602d78">Revert “[ext-code-space] Enable external code space on x64 and desktop arm64”</a> (Jan 28, 2022)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/5351e0e805e6e7081250b5b9a015dcff8157d1dc">[ext-code-space] Enable external code space on x64 and desktop arm64</a> (Jan 28, 2022)</p>
 </blockquote>
 <h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/c8d039b05081b474ef751411a5c76ca01900e49a">[sandbox] Enable code pointer sandboxing</a> (Jul 11, 2023)</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/bc795ebd90a5a7c957b644da5fac369eb88aa87a">Revert “[sandbox] Enable code pointer sandboxing”</a> (Jul 11, 2023)</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/v8/v8/commit/7df23d5163a10a12e4b4262dd4e78cfb7ec97be0">Reland “[sandbox] Enable code pointer sandboxing”</a> (Jul 11, 2023)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/c8d039b05081b474ef751411a5c76ca01900e49a">[sandbox] Enable code pointer sandboxing</a> (Jul 11, 2023)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/bc795ebd90a5a7c957b644da5fac369eb88aa87a">Revert “[sandbox] Enable code pointer sandboxing”</a> (Jul 11, 2023)</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/7df23d5163a10a12e4b4262dd4e78cfb7ec97be0">Reland “[sandbox] Enable code pointer sandboxing”</a> (Jul 11, 2023)</p>
 </blockquote>
 
   </div>
@@ -254,17 +254,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&text=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&text=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
   <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)&body=Check out this article: https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&name=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&t=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&title=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&name=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/&t=Escaping V8 Sandbox via JIT Spraying by Turbofan: Part 2 (10.0.52 &lt;= V8 &lt; 11.7.154)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -316,7 +316,7 @@
 
 
 
-  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
 
 
     <!-- jquery -->
