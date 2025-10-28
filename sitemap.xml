@@ -4,7 +4,34 @@
   <url>
     <loc>https://aaronsjcho.github.io/2023/04/29/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-1/</loc>
     
-    <lastmod>2025-10-26</lastmod>
+    <lastmod>2025-10-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2022/07/01/pwnable-xyz-Welcome/</loc>
+    
+    <lastmod>2025-10-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/05/06/CVE-2019-5782/</loc>
+    
+    <lastmod>2025-10-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/2023/04/30/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-2/</loc>
+    
+    <lastmod>2025-10-27</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -73,28 +100,10 @@
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>https://aaronsjcho.github.io/2023/04/30/Escaping-V8-Sandbox-via-Backing-Store-of-ArrayBuffer-and-WebAssembly-Code-Space-Part-2/</loc>
-    
-    <lastmod>2025-10-24</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://aaronsjcho.github.io/2023/05/06/CVE-2019-5782/</loc>
-    
-    <lastmod>2025-10-24</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
 
   <url>
     <loc>https://aaronsjcho.github.io/</loc>
-    <lastmod>2025-10-26</lastmod>
+    <lastmod>2025-10-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -102,14 +111,14 @@
   
   <url>
     <loc>https://aaronsjcho.github.io/tags/chromium/</loc>
-    <lastmod>2025-10-26</lastmod>
+    <lastmod>2025-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://aaronsjcho.github.io/tags/v8/</loc>
-    <lastmod>2025-10-26</lastmod>
+    <lastmod>2025-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -118,7 +127,21 @@
   
   <url>
     <loc>https://aaronsjcho.github.io/categories/N-day/</loc>
-    <lastmod>2025-10-26</lastmod>
+    <lastmod>2025-10-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/categories/Wargame/</loc>
+    <lastmod>2025-10-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://aaronsjcho.github.io/categories/Wargame/pwnable-xyz/</loc>
+    <lastmod>2025-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
