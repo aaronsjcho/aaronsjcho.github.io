@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://aaronsjcho.github.io/2023/05/06/cve-2019-5782/</loc>
+    
+    <lastmod>2025-11-01</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://aaronsjcho.github.io/2023/04/30/v8sbx-ab-2/</loc>
     
     <lastmod>2025-11-01</lastmod>
