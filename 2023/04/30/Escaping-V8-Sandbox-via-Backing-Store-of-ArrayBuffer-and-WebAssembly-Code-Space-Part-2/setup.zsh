@@ -23,6 +23,12 @@ echo 'solutions = [
 ]' >.gclient
 gclient sync -Dvvv
 
+# install gdb plugin
+echo "\nsource $PWD/v8/tools/gdbinit" >>~/.gdbinit
+
+# install wabt
+sudo apt install -y wabt
+
 # build v8
 pushd v8
 git apply ../sandbox.diff
