@@ -1,0 +1,9 @@
+User-agent: *
+
+Allow: /
+
+Disallow: /js/
+Disallow: /css/
+Disallow: /images/
+
+Sitemap: https://aaronsjcho.github.io/sitemap.xml

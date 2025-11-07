@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <meta name="description" content="In this post, I will outline an exploit technique which allows us to escape the V8 sandbox via JIT spraying by WebAssembly. This leads us to arbitrary code execution starting from sandboxed exploit pr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)">
+<meta property="og:url" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="In this post, I will outline an exploit technique which allows us to escape the V8 sandbox via JIT spraying by WebAssembly. This leads us to arbitrary code execution starting from sandboxed exploit pr">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/1.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/2.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/3.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/4.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/5.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/6.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/7.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/8.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/9.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/10.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/11.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/12.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/13.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/14.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/15.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/16.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/17.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/18.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/19.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/20.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/21.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/pwn.png">
+<meta property="article:published_time" content="2024-01-27T03:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-07T12:09:18.177Z">
+<meta property="article:author" content="Seongjoon Cho">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="v8">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/1.png">
+    
+    <link rel="canonical" href="https://aaronsjcho.github.io/2024/01/27/escaping-v8-sandbox-via-jit-spraying-by-webassembly-part-1/">
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXRLJ2S4LP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TXRLJ2S4LP');
+  </script>
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="Aaron's Note" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="Aaron's Note" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&text=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)&body=Check out this article: https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&name=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&t=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebAssembly-jump-table"><span class="toc-number">2.1.</span> <span class="toc-text">WebAssembly jump table</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-WebAssembly-function"><span class="toc-number">2.2.</span> <span class="toc-text">Execution flow of WebAssembly function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compiling-i64-const"><span class="toc-number">2.3.</span> <span class="toc-text">Compiling i64.const</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spray-shellcode"><span class="toc-number">3.1.</span> <span class="toc-text">Spray shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hijack-execution-flow"><span class="toc-number">3.2.</span> <span class="toc-text">Hijack execution flow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Seongjoon Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-01-27T03:00:00.000Z" class="dt-published" itemprop="datePublished">2024-01-27</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/N-day/">N-day</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>In this post, I will outline an exploit technique which allows us to escape the V8 sandbox via JIT spraying by WebAssembly. This leads us to arbitrary code execution starting from sandboxed exploit primitives.</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 20.04 (WSL)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/cb5c1b8a1fd1eee214501ee06fdd4566886803c1"><code>cb5c1b8a1fd1eee214501ee06fdd4566886803c1</code></a> (Jul 26, 2022)</li>
+</ul>
+<p>Run <a href="setup.py"><code>setup.py</code></a> in the working directory.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="WebAssembly-jump-table"><a href="#WebAssembly-jump-table" class="headerlink" title="WebAssembly jump table"></a>WebAssembly jump table</h3><p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/1.png"></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/2.png"></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/3.png"></p>
+<p><code>test.wat</code> defines two empty functions exported to JavaScript as <code>f1</code> and <code>f2</code>, respectively.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/4.png"></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/5.png"></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/docs/WebAssembly/Reference/JavaScript_interface/Module/Module"><code>WebAssembly.Module()</code></a> is managed by <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-js.cc#L707"><code>WebAssemblyModule()</code></a>. It copies the source of the module to <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-js.cc#L728"><code>bytes</code></a> and passes it to <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-js.cc#L745"><code>WasmEngine::SyncCompile()</code></a>.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/6.png"></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-engine.cc#L535"><code>WasmEngine::SyncCompile()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-engine.cc#L554"><code>CompileToNativeModule()</code></a> to compile <code>bytes</code> to a <code>NativeModule</code> object. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1931"><code>CompileToNativeModule()</code></a> gets into <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1967"><code>WasmEngine::NewNativeModule()</code></a> → <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-engine.cc#L1167"><code>WasmCodeManager::NewNativeModule()</code></a>. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L2237"><code>WasmCodeManager::NewNativeModule()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L2267"><code>WasmCodeManager::TryAllocate()</code></a> to allocate a <code>code_space</code> for the module.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/7.png"></p>
+<p>Then, <code>WasmCodeManager::NewNativeModule()</code> constructs a <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L2286"><code>NativeModule</code></a> object with the <code>code_space</code>.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/8.png"></p>
+<p>At this point, the code space has no permission yet.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/9.png"></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L972"><code>NativeModule::NativeModule()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1012"><code>NativeModule::AddCodeSpaceLocked()</code></a> to initialise the code space. In <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1577"><code>NativeModule::AddCodeSpaceLocked()</code></a>, <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1609"><code>needs_far_jump_table</code></a> is set to <code>true</code> if nothing has been created previously, and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1611"><code>needs_jump_table</code></a> is set to <code>true</code> if <code>needs_far_jump_table</code> is <code>true</code> and the module contains at least one function.</p>
+<p>Both <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1614"><code>jump_table</code></a> and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1621"><code>far_jump_table</code></a> are created by <code>NativeModule::CreateEmptyJumpTableInRegionLocked()</code>. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1484"><code>NativeModule::CreateEmptyJumpTableInRegionLocked()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1491"><code>WasmCodeAllocator::AllocateForCodeInRegion()</code></a> to reserve <code>jump_table_size</code> of <code>code_space</code>.</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L710"><code>WasmCodeAllocator::AllocateForCodeInRegion()</code></a> allocates <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L715"><code>code_space</code></a> by <code>size</code> from the front of <code>free_code_space_</code>, and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L770">commits</a> the <code>code_space</code> in case there’s any region that has never been committed between <code>code_space.begin()</code> and <code>code_space.end()</code>. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1908"><code>WasmCodeManager::Commit()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1958"><code>SetPermissions()</code></a> to set the permission of the <code>region</code> to <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1945"><code>PageAllocator::kReadWriteExecute</code></a> for compiling and executing the Wasm code.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/10.png"></p>
+<p>While the jump table remains empty after it’s created, the far jump table is generated first by <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1640"><code>JumpTableAssembler::GenerateFarJumpTable()</code></a>. Each slot in the far jump table contains a <code>jmp</code> instruction pointing to each <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/jump-table-assembler.h#L143"><code>target</code></a> in <code>stub_targets</code> and the module.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/11.png"></p>
+<p>After <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1967"><code>WasmEngine::NewNativeModule()</code></a> is returned and <code>native_module</code> is ready to be compiled, <code>CompileToNativeModule()</code> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1973"><code>CompileNativeModule()</code></a>. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1834"><code>CompileNativeModule()</code></a> gets into</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1870"><code>CompilationStateImpl::WaitForCompilationEvent()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L3789"><code>ExecuteCompilationUnits()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1626"><code>CompilationStateImpl::SchedulePublishCompilationResults()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L3703"><code>CompilationStateImpl::PublishCompilationResults()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L3671"><code>CompilationStateImpl::PublishCode()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L3678"><code>NativeModule::PublishCode()</code></a>.</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1286"><code>NativeModule::PublishCode()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1298"><code>NativeModule::PublishCodeLocked()</code></a> for each <code>code</code> corresponding to each function in the module, and <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1314"><code>NativeModule::PublishCodeLocked()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1371"><code>NativeModule::PatchJumpTablesLocked()</code></a> → <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1530"><code>NativeModule::PatchJumpTableLocked()</code></a> → <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1573"><code>JumpTableAssembler::PatchJumpTableSlot()</code></a> to generate the jump table slot which contains a <code>jmp</code> instruction pointing to the starting address of compiled instructions of the function.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/12.png"></p>
+<h3 id="Execution-flow-of-WebAssembly-function"><a href="#Execution-flow-of-WebAssembly-function" class="headerlink" title="Execution flow of WebAssembly function"></a>Execution flow of WebAssembly function</h3><p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/13.png"></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/14.png"></p>
+<p>When a Wasm function is called, the handler gets <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/objects/js-function.tq#L33"><code>shared_function_info</code></a> from <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/objects/js-function.tq#L32"><code>JSFunction</code></a>,</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/15.png"></p>
+<p>gets <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/objects/shared-function-info.tq#L55"><code>function_data</code></a> from <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/objects/shared-function-info.tq#L50"><code>SharedFunctionInfo</code></a>,</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/16.png"></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/17.png"></p>
+<p>gets <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-objects.tq#L51"><code>internal</code></a> from <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-objects.tq#L57"><code>WasmExportedFunctionData</code></a>,</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/18.png"></p>
+<p>and finally, gets <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/objects/foreign.tq#L7"><code>foreign_address</code></a> named call target from <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-objects.tq#L34"><code>WasmInternalFunction</code></a>. </p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/19.png"></p>
+<p>The call target is the address of the jump table slot corresponding to the function called.</p>
+<p>With sandboxed exploit primitives, we can get the address of the <code>WasmInternalFunction</code> object and overwrite the call target with an arbitrary address to hijack the execution flow.</p>
+<h3 id="Compiling-i64-const"><a href="#Compiling-i64-const" class="headerlink" title="Compiling i64.const"></a>Compiling i64.const</h3><p><code>Builtins_WasmCompileLazy()</code> gets into</p>
+<p><code>Builtins_WasmCEntry()</code><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/runtime/runtime-wasm.cc#L221"><code>Runtime_WasmCompileLazy()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/runtime/runtime-wasm.cc#L244"><code>CompileLazy()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/module-compiler.cc#L1174"><code>WasmCompilationUnit::ExecuteCompilation()</code></a></p>
+<p>to compile a Wasm module. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-compiler.cc#L32"><code>WasmCompilationUnit::ExecuteCompilation()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-compiler.cc#L40"><code>WasmCompilationUnit::ExecuteFunctionCompilation()</code></a> for each function in the module. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-compiler.cc#L69"><code>WasmCompilationUnit::ExecuteFunctionCompilation()</code></a> calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-compiler.cc#L121"><code>ExecuteLiftoffCompilation()</code></a> to use <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-compiler.cc#L105">Liftoff</a>, which is a baseline compiler for WebAssembly, for lazy compilation on the first call. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/baseline/liftoff-compiler.cc#L7577"><code>ExecuteLiftoffCompilation()</code></a> constructs a <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/baseline/liftoff-compiler.cc#L7601"><code>WasmFullDecoder</code></a> object and calls <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/baseline/liftoff-compiler.cc#L7609"><code>WasmFullDecoder::Decode()</code></a> → <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-body-decoder-impl.h#L2494"><code>WasmFullDecoder::DecodeFunctionBody()</code></a> to decode the function body. <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-body-decoder-impl.h#L2626"><code>WasmFullDecoder::DecodeFunctionBody()</code></a> calls the <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-body-decoder-impl.h#L2678"><code>handler</code></a> for each <code>opcode</code> in the function body.</p>
+<p><code>i64.const</code> is handled by <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-body-decoder-impl.h#L3344"><code>WasmFullDecoder::DecodeI64Const()</code></a>. It gets into</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/function-body-decoder-impl.h#L3347"><code>LiftoffCompiler::I64Const()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/baseline/liftoff-compiler.cc#L2205"><code>LiftoffAssembler::LoadConstant()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/baseline/x64/liftoff-assembler-x64.h#L319"><code>TurboAssembler::Move()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/codegen/x64/macro-assembler-x64.h#L302"><code>Assembler::movq()</code></a><br>→ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/codegen/x64/assembler-x64.h#L529"><code>Assembler::emit_mov()</code></a></p>
+<p>and eventually assembles an instruction which moves the constant <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/codegen/x64/assembler-x64.cc#L1684"><code>value</code></a> to an unused register.</p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/20.png"></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/21.png"></p>
+<p>Assembled instructions are <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/blob/cb5c1b8a1fd1eee214501ee06fdd4566886803c1/src/wasm/wasm-code-manager.cc#L1230">copied</a> to the Wasm code space when the module is compiled. In conclusion, we can insert arbitrary 8-byte constant numbers, which can be potentially used for <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/JIT_spraying">JIT spraying</a>, into the assembly code of the function.</p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Spray-shellcode"><a href="#Spray-shellcode" class="headerlink" title="Spray shellcode"></a>Spray shellcode</h3><p>We can execute up to 8-byte shellcode by inserting it into the assembly code of the Wasm function and moving <code>rip</code> to where the shellcode lies by overwriting the call target of the <code>WasmInternalFunction</code> object corresponding to the function.</p>
+<p>However, it’d be impossible to do what we want to, for example, <code>execve(&quot;/bin/sh&quot;, 0, 0)</code>, with only 8 bytes of assembly code. Therefore, we must chain several shellcode segments using a relative <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.felixcloutier.com/x86/jmp"><code>jmp</code></a> instruction. The distances between the floating-point numbers in the code are consistent, so we can make each segment jump to the next one by constructing each one with a 6-byte shellcode and a 2-byte <code>jmp</code> instruction.</p>
+<p><a href="shellcode.py"><code>shellcode.py</code></a></p>
+<h3 id="Hijack-execution-flow"><a href="#Hijack-execution-flow" class="headerlink" title="Hijack execution flow"></a>Hijack execution flow</h3><p><a href="pwn.wat"><code>pwn.wat</code></a> <a href="pwn.js"><code>pwn.js</code></a></p>
+<p><img src="/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/pwn.png"></p>
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/v8/v8/commit/2eb73988a37a60520a0f8e0b1109edbcc0b91415">[sandbox] Refactor and sandboxify WasmInternalFunction::call_target</a> (Jul 26, 2022)</p>
+<p>This CL refactors WasmInternalFunction to no longer inherit from Foreign but instead contain a (sandboxed) ExternalPointer field for the call target.</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebAssembly-jump-table"><span class="toc-number">2.1.</span> <span class="toc-text">WebAssembly jump table</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-WebAssembly-function"><span class="toc-number">2.2.</span> <span class="toc-text">Execution flow of WebAssembly function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compiling-i64-const"><span class="toc-number">2.3.</span> <span class="toc-text">Compiling i64.const</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spray-shellcode"><span class="toc-number">3.1.</span> <span class="toc-text">Spray shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hijack-execution-flow"><span class="toc-number">3.2.</span> <span class="toc-text">Hijack execution flow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&text=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&is_video=false&description=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)&body=Check out this article: https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&title=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&name=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/&t=Escaping V8 Sandbox via JIT Spraying by WebAssembly: Part 1 (V8 &lt; 10.6.24)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2025
+    Seongjoon Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'aaronsjcho/aaronsjcho.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'github-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+</body>
+</html>
