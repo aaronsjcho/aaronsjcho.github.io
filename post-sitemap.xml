@@ -9,48 +9,8 @@
 
 
     <url>
-        <loc>https://aaronsjcho.github.io/2023/04/30/v8sbx-ab-2/</loc>
-        <lastmod>2025-11-07T12:09:18.215Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/2023/04/29/v8sbx-ab-1/</loc>
-        <lastmod>2025-11-07T12:09:18.204Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/2023/05/06/cve-2019-5782/</loc>
-        <lastmod>2025-11-07T12:09:18.191Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/2024/01/27/Escaping-V8-Sandbox-via-JIT-Spraying-by-WebAssembly-Part-1/</loc>
-        <lastmod>2025-11-07T12:09:18.177Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/2023/07/30/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-2/</loc>
-        <lastmod>2025-11-07T12:09:18.173Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/2023/07/29/Escaping-V8-Sandbox-via-JIT-Spraying-by-Turbofan-Part-1/</loc>
-        <lastmod>2025-11-07T12:09:18.161Z</lastmod>
+        <loc>https://aaronsjcho.github.io/2023/07/29/escaping-v8-sandbox-via-jit-spraying-by-turbofan-part-1/</loc>
+        <lastmod>2025-11-07T20:43:01.144Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
