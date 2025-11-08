@@ -3,11 +3,6 @@
 
 
     <sitemap>
-        <loc>https://aaronsjcho.github.io/post-sitemap.xml</loc>
-        <lastmod>2025-11-07T20:43:01.144Z</lastmod>
-    </sitemap>
-
-    <sitemap>
         <loc>https://aaronsjcho.github.io/page-sitemap.xml</loc>
         <lastmod>2025-11-07T12:18:05.169Z</lastmod>
     </sitemap>
