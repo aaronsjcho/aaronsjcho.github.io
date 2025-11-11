@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-2/</loc>
+        <lastmod>2025-11-11T00:28:23.601Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-1/</loc>
         <lastmod>2025-11-11T00:17:41.211Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -19,14 +27,6 @@
     <url>
         <loc>https://aaronsjcho.github.io/n-day/vulnerability/cve-2019-5782/</loc>
         <lastmod>2025-11-10T08:51:32.669Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-2/</loc>
-        <lastmod>2025-11-10T02:26:53.369Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
