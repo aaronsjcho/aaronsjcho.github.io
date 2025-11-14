@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-jit-spraying-by-turbofan-part-1/</loc>
+        <lastmod>2025-11-14T15:51:37.154Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-2/</loc>
         <lastmod>2025-11-11T00:28:23.601Z</lastmod>
         <changefreq>weekly</changefreq>
