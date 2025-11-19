@@ -9,6 +9,14 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-turbofan/</loc>
+        <lastmod>2025-11-19T16:41:59.466Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-jsmap/</loc>
         <lastmod>2025-11-18T12:48:50.109Z</lastmod>
         <changefreq>weekly</changefreq>
