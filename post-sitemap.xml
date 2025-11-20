@@ -9,6 +9,22 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/ctf/downunderctf-2020-is-this-pwn-or-web/</loc>
+        <lastmod>2025-11-20T02:17:53.789Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-jsmap/</loc>
+        <lastmod>2025-11-20T02:13:22.326Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/n-day/vulnerability/cve-2019-5782/</loc>
         <lastmod>2025-11-19T17:15:26.501Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -19,14 +35,6 @@
     <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-turbofan/</loc>
         <lastmod>2025-11-19T16:41:59.466Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-jsmap/</loc>
-        <lastmod>2025-11-18T12:48:50.109Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
