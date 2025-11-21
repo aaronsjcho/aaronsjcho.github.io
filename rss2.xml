@@ -9,7 +9,7 @@
     <atom:link href="https://aaronsjcho.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>Hello! I&#39;m Seongjoon (Aaron) Cho, an enthusiastic offensive security researcher from the Republic of Korea. Currently, I&#39;m passionate about exploring browser vulnerabilities, with a special focus on the V8 JavaScript engine.</description>
-    <pubDate>Fri, 21 Nov 2025 10:37:59 GMT</pubDate>
+    <pubDate>Fri, 21 Nov 2025 10:39:10 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -288,6 +288,8 @@
       
       <category domain="https://aaronsjcho.github.io/categories/n-day/exploitation/">exploitation</category>
       
+      
+      <category domain="https://aaronsjcho.github.io/tags/browser/">browser</category>
       
       <category domain="https://aaronsjcho.github.io/tags/chromium/">chromium</category>
       

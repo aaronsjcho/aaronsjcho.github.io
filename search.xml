@@ -270,6 +270,8 @@
       
         <tags>
             
+            <tag> browser </tag>
+            
             <tag> chromium </tag>
             
             <tag> v8 </tag>

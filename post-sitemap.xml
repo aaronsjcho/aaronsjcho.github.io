@@ -9,24 +9,16 @@
 
 
     <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-1/</loc>
+        <lastmod>2025-11-21T10:40:11.263Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://aaronsjcho.github.io/ctf/downunderctf-2020-is-this-pwn-or-web/</loc>
-        <lastmod>2025-11-21T10:37:59.512Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/n-day/vulnerability/cve-2019-5782/</loc>
-        <lastmod>2025-11-21T10:37:59.511Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-jit-spraying-by-turbofan-part-1/</loc>
-        <lastmod>2025-11-21T10:37:59.511Z</lastmod>
+        <lastmod>2025-11-21T10:39:10.946Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -34,7 +26,23 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-2/</loc>
-        <lastmod>2025-11-21T10:37:59.511Z</lastmod>
+        <lastmod>2025-11-21T10:39:10.946Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://aaronsjcho.github.io/n-day/vulnerability/cve-2019-5782/</loc>
+        <lastmod>2025-11-21T10:39:10.943Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-jit-spraying-by-turbofan-part-1/</loc>
+        <lastmod>2025-11-21T10:39:10.942Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -42,15 +50,7 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-jsmap/</loc>
-        <lastmod>2025-11-21T10:37:59.506Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-turbofan/</loc>
-        <lastmod>2025-11-21T10:37:59.506Z</lastmod>
+        <lastmod>2025-11-21T10:39:10.942Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -58,7 +58,15 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-jit-spraying-by-turbofan-part-2/</loc>
-        <lastmod>2025-11-21T10:37:59.503Z</lastmod>
+        <lastmod>2025-11-21T10:39:10.940Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://aaronsjcho.github.io/n-day/exploitation/exploiting-hole-via-turbofan/</loc>
+        <lastmod>2025-11-21T10:39:10.940Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -66,15 +74,7 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/ctf/picoctf-2021-download-horsepower/</loc>
-        <lastmod>2025-11-21T10:37:59.503Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://aaronsjcho.github.io/n-day/exploitation/escaping-v8-sandbox-via-backing-store-of-arraybuffer-part-1/</loc>
-        <lastmod>2025-11-11T00:17:41.211Z</lastmod>
+        <lastmod>2025-11-21T10:39:10.940Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
