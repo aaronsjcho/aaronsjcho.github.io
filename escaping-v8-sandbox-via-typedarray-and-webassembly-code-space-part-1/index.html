@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <meta name="description" content="In this post, I will introduce an exploit technique that allows us to escape the V8 sandbox via TypedArray and WebAssembly code space, when we have some essential sandboxed exploit primitives. Setup U">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)">
+<meta property="og:url" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/index.html">
+<meta property="og:site_name" content="Aaron&#39;s Note">
+<meta property="og:description" content="In this post, I will introduce an exploit technique that allows us to escape the V8 sandbox via TypedArray and WebAssembly code space, when we have some essential sandboxed exploit primitives. Setup U">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/1.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/2.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/3.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/4.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/5.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/6.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/7.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/8.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/9.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/10.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/11.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/12.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/13.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/14.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/15.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/16.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/17.png">
+<meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/pwn.png">
+<meta property="article:published_time" content="2023-04-22T03:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-22T00:16:15.256Z">
+<meta property="article:author" content="Seongjoon (Aaron) Cho">
+<meta property="article:tag" content="browser">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="v8">
+<meta property="article:tag" content="v8sbx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXRLJ2S4LP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TXRLJ2S4LP');
+  </script>
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-2/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&text=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&is_video=false&description=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&body=Check out this article: https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&name=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&t=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-pointer-of-TypedArray"><span class="toc-number">2.1.</span> <span class="toc-text">Data pointer of TypedArray</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-WebAssembly-function"><span class="toc-number">2.2.</span> <span class="toc-text">Execution flow of WebAssembly function</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Implementing-sandboxed-exploit-primitives"><span class="toc-number">3.1.</span> <span class="toc-text">Implementing sandboxed exploit primitives</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Implementing-unsandboxed-AAR-AAW"><span class="toc-number">3.2.</span> <span class="toc-text">Implementing unsandboxed AAR&#x2F;AAW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Getting-address-of-WebAssembly-jump-table"><span class="toc-number">3.3.</span> <span class="toc-text">Getting address of WebAssembly jump table</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Executing-shellcode"><span class="toc-number">3.4.</span> <span class="toc-text">Executing shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Seongjoon (Aaron) Cho</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-22T03:00:00.000Z" class="dt-published" itemprop="datePublished">2023-04-22</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/n-day/">n-day</a> › <a class="category-link" href="/categories/n-day/exploit/">exploit</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/browser/" rel="tag">browser</a>, <a class="p-category" href="/tags/chromium/" rel="tag">chromium</a>, <a class="p-category" href="/tags/v8/" rel="tag">v8</a>, <a class="p-category" href="/tags/v8sbx/" rel="tag">v8sbx</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>In this post, I will introduce an exploit technique that allows us to escape the V8 sandbox via <code>TypedArray</code> and WebAssembly code space, when we have some essential sandboxed exploit primitives.</p>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
+<li>Ubuntu 20.04</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/0ac7e1203fcb957851887fb140dc8a41139846a5">0ac7e1203fcb957851887fb140dc8a41139846a5</a> (Feb 15, 2022)</li>
+</ul>
+<p>Place <a href="v8setup.py"><code>v8setup.py</code></a> and <a href="sandbox.diff"><code>sandbox.diff</code></a> in your working directory, then run <code>v8setup.py</code>.</p>
+<p><code>sandbox.diff</code> is identical to the change in <a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/4a12cb1022ba335ce087dcfe31b261355524b3bf">[sandbox] Add new Memory Corruption API</a> (May 20, 2022), which introduced a new memory corruption API that allows us to simulate a vulnerability and implement essential exploit primitives within the sandbox.</p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><h3 id="Data-pointer-of-TypedArray"><a href="#Data-pointer-of-TypedArray" class="headerlink" title="Data pointer of TypedArray"></a>Data pointer of TypedArray</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> in JavaScript is managed by the <code>JSTypedArray</code> class.</p>
+<figure class="highlight c++"><figcaption><span>src&#x2F;objects&#x2F;js-array-buffer.tq</span></figcaption><table><tr><td class="gutter"><pre><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="keyword">class</span> <span class="title class_">JSTypedArray</span> extends JSArrayBufferView &#123;</span><br><span class="line">  length: uintptr;</span><br><span class="line">  <span class="comment">// A SandboxedPtr if the sandbox is enabled</span></span><br><span class="line marked">  external_pointer: RawPtr;</span><br><span class="line marked">  base_pointer: ByteArray|Smi;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>JSTypedArray</code> has two kinds of pointers. <code>external_pointer</code> holds the address of the external array that actually contains the elements of the <code>TypedArray</code>, and <code>base_pointer</code> holds the distance between the <code>external_pointer</code> and the actual address where the first element is stored.</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = <span class="keyword">new</span> <span class="title class_">BigUint64Array</span>(<span class="number">1</span>);</span><br><span class="line">arr[<span class="number">0</span>] = <span class="number">0x4141414141414141n</span>;</span><br><span class="line">% <span class="title class_">DebugPrint</span>(arr);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/1.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/2.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/3.png"></p>
+<p>When the <code>TypedArray</code> tries to read or write its elements, it adds its <code>external_pointer</code> and <code>base_pointer</code> and accesses the resulting address.</p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/4.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/5.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/6.png"></p>
+<p>It doesn’t check whether the address is within the sandbox, so we can escape it by overwriting the <code>external_pointer</code> with an arbitrary address, using the sandboxed arbitrary address write primitive. In addition, we can leak the original <code>external_pointer</code> to obtain the base address of the V8 heap if needed, using the sandboxed arbitrary address read primitive.</p>
+<h3 id="Execution-flow-of-WebAssembly-function"><a href="#Execution-flow-of-WebAssembly-function" class="headerlink" title="Execution flow of WebAssembly function"></a>Execution flow of WebAssembly function</h3><figure class="highlight c++"><figcaption><span>src&#x2F;wasm&#x2F;wasm-code-manager.cc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">2188</span><br><span class="line">2189</span><br><span class="line">2190</span><br><span class="line">2191</span><br><span class="line">2192</span><br><span class="line">2193</span><br><span class="line">2194</span><br><span class="line">2195</span><br><span class="line">2196</span><br><span class="line">2197</span><br><span class="line">2198</span><br><span class="line">2199</span><br><span class="line">2200</span><br><span class="line">2201</span><br><span class="line">2202</span><br><span class="line">2203</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Try up to two times; getting rid of dead JSArrayBuffer allocations might</span></span><br><span class="line"><span class="comment">// require two GCs because the first GC maybe incremental and may have</span></span><br><span class="line"><span class="comment">// floating garbage.</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int</span> kAllocationRetries = <span class="number">2</span>;</span><br><span class="line">VirtualMemory code_space;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> retries = <span class="number">0</span>;; ++retries) &#123;</span><br><span class="line marked">  code_space = <span class="built_in">TryAllocate</span>(code_vmem_size);</span><br><span class="line">  <span class="keyword">if</span> (code_space.<span class="built_in">IsReserved</span>()) <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">if</span> (retries == kAllocationRetries) &#123;</span><br><span class="line">    V8::<span class="built_in">FatalProcessOutOfMemory</span>(isolate, <span class="string">&quot;NewNativeModule&quot;</span>);</span><br><span class="line">    <span class="built_in">UNREACHABLE</span>();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Run one GC, then try the allocation again.</span></span><br><span class="line">  isolate-&gt;<span class="built_in">heap</span>()-&gt;<span class="built_in">MemoryPressureNotification</span>(MemoryPressureLevel::kCritical,</span><br><span class="line">                                              <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>When a WebAssembly module is created, <code>code_space</code> for the module is allocated.</p>
+<figure class="highlight c++"><figcaption><span>src&#x2F;wasm&#x2F;wasm-code-manager.cc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1581</span><br><span class="line">1582</span><br><span class="line">1583</span><br><span class="line">1584</span><br><span class="line">1585</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (needs_jump_table) &#123;</span><br><span class="line marked">  jump_table = <span class="built_in">CreateEmptyJumpTableInRegionLocked</span>(</span><br><span class="line marked">      JumpTableAssembler::<span class="built_in">SizeForNumberOfSlots</span>(num_wasm_functions), region);</span><br><span class="line">  <span class="built_in">CHECK</span>(region.<span class="built_in">contains</span>(jump_table-&gt;<span class="built_in">instruction_start</span>()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>At the very front of the code space, <code>jump_table</code> for the WebAssembly functions is created. The jump table is responsible for determining the execution flow of the functions.</p>
+<figure class="highlight c++"><figcaption><span>src&#x2F;wasm&#x2F;wasm-code-manager.cc</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1898</span><br><span class="line">1899</span><br><span class="line">1900</span><br><span class="line">1901</span><br><span class="line">1902</span><br><span class="line">1903</span><br><span class="line">1904</span><br><span class="line">1905</span><br><span class="line">1906</span><br><span class="line">1907</span><br><span class="line">1908</span><br><span class="line">1909</span><br><span class="line">1910</span><br><span class="line">1911</span><br><span class="line">1912</span><br><span class="line">1913</span><br><span class="line">1914</span><br><span class="line">1915</span><br><span class="line">1916</span><br><span class="line">1917</span><br><span class="line">1918</span><br><span class="line">1919</span><br><span class="line">1920</span><br><span class="line">1921</span><br><span class="line">1922</span><br><span class="line">1923</span><br><span class="line">1924</span><br><span class="line">1925</span><br><span class="line">1926</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Even when we employ W^X with FLAG_wasm_write_protect_code_memory == true,</span></span><br><span class="line"><span class="comment">// code pages need to be initially allocated with RWX permission because of</span></span><br><span class="line"><span class="comment">// concurrent compilation/execution. For this reason there is no distinction</span></span><br><span class="line"><span class="comment">// here based on FLAG_wasm_write_protect_code_memory.</span></span><br><span class="line"><span class="comment">// TODO(dlehmann): This allocates initially as writable and executable, and</span></span><br><span class="line"><span class="comment">// as such is not safe-by-default. In particular, if</span></span><br><span class="line"><span class="comment">// &#123;WasmCodeAllocator::SetWritable(false)&#125; is never called afterwards (e.g.,</span></span><br><span class="line"><span class="comment">// because no &#123;CodeSpaceWriteScope&#125; is created), the writable permission is</span></span><br><span class="line"><span class="comment">// never withdrawn.</span></span><br><span class="line"><span class="comment">// One potential fix is to allocate initially with kReadExecute only, which</span></span><br><span class="line"><span class="comment">// forces all compilation threads to add the missing &#123;CodeSpaceWriteScope&#125;s</span></span><br><span class="line"><span class="comment">// before modification; and/or adding DCHECKs that &#123;CodeSpaceWriteScope&#125; is</span></span><br><span class="line"><span class="comment">// open when calling this method.</span></span><br><span class="line marked">PageAllocator::Permission permission = PageAllocator::kReadWriteExecute;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> success;</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">MemoryProtectionKeysEnabled</span>()) &#123;</span><br><span class="line">  <span class="built_in">TRACE_HEAP</span>(</span><br><span class="line">      <span class="string">&quot;Setting rwx permissions and memory protection key %d for 0x%&quot;</span> PRIxPTR</span><br><span class="line">      <span class="string">&quot;:0x%&quot;</span> PRIxPTR <span class="string">&quot;\n&quot;</span>,</span><br><span class="line">      memory_protection_key_, region.<span class="built_in">begin</span>(), region.<span class="built_in">end</span>());</span><br><span class="line">  success = <span class="built_in">SetPermissionsAndMemoryProtectionKey</span>(</span><br><span class="line">      <span class="built_in">GetPlatformPageAllocator</span>(), region, permission, memory_protection_key_);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="built_in">TRACE_HEAP</span>(<span class="string">&quot;Setting rwx permissions for 0x%&quot;</span> PRIxPTR <span class="string">&quot;:0x%&quot;</span> PRIxPTR <span class="string">&quot;\n&quot;</span>,</span><br><span class="line">             region.<span class="built_in">begin</span>(), region.<span class="built_in">end</span>());</span><br><span class="line">  success = <span class="built_in">SetPermissions</span>(<span class="built_in">GetPlatformPageAllocator</span>(), region.<span class="built_in">begin</span>(),</span><br><span class="line">                           region.<span class="built_in">size</span>(), permission);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The permission of the code space is set to RWX because compiled code for the WebAssembly functions has to be written and executed in that space.</p>
+<figure class="highlight plaintext"><figcaption><span>test.wat</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(module</span><br><span class="line">  (func $f1 (export &quot;f1&quot;))</span><br><span class="line">  (func $f2 (export &quot;f2&quot;))</span><br><span class="line">  (func $f3 (export &quot;f3&quot;))</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><code>test.wat</code> defines a WebAssembly module containing three functions, all of which are exported to JavaScript.</p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/7.png"></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> wasm_src = <span class="keyword">new</span> <span class="title class_">Uint8Array</span>([<span class="number">0</span>, <span class="number">97</span>, <span class="number">115</span>, <span class="number">109</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">96</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">7</span>, <span class="number">16</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">102</span>, <span class="number">49</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">102</span>, <span class="number">50</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">102</span>, <span class="number">51</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">11</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">11</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">11</span>]);</span><br><span class="line"><span class="keyword">let</span> wasm_module = <span class="keyword">new</span> <span class="title class_">WebAssembly</span>.<span class="title class_">Module</span>(wasm_src);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/8.png"></p>
+<p>The jump table consists of <code>jmp</code> instructions, each of which corresponds to a function in the module.</p>
+<p>We can access the exported functions with <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/docs/WebAssembly/Reference/JavaScript_interface/Instance/exports"><code>WebAssembly.Instance.prototype.exports</code></a>.</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> wasm_instance = <span class="keyword">new</span> <span class="title class_">WebAssembly</span>.<span class="title class_">Instance</span>(wasm_module);</span><br><span class="line">% <span class="title class_">DebugPrint</span>(wasm_instance.<span class="property">exports</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/9.png"></p>
+<p>Each function is managed by <code>JSFunction</code> class, like any other ordinary JavaScript function.</p>
+<figure class="highlight c++"><figcaption><span>src&#x2F;objects&#x2F;js-function.tq</span></figcaption><table><tr><td class="gutter"><pre><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// This class does not use the generated verifier, so if you change anything</span></span><br><span class="line"><span class="comment">// here, please also update JSFunctionVerify in objects-debug.cc.</span></span><br><span class="line">@highestInstanceTypeWithinParentClassRange</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">class</span> <span class="title class_">JSFunction</span> extends JSFunctionOrBoundFunction &#123;</span><br><span class="line">  shared_function_info: SharedFunctionInfo;</span><br><span class="line">  context: Context;</span><br><span class="line">  feedback_cell: FeedbackCell;</span><br><span class="line marked">  @<span class="keyword">if</span>(V8_EXTERNAL_CODE_SPACE) code: CodeDataContainer;</span><br><span class="line">  @ifnot(V8_EXTERNAL_CODE_SPACE) code: Code;</span><br><span class="line">  <span class="comment">// Space for the following field may or may not be allocated.</span></span><br><span class="line">  prototype_or_initial_map: JSReceiver|Map;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>JSFunction</code> has an accessor named <code>code</code> pointing to <code>CodeDataContainer</code>.</p>
+<figure class="highlight c++"><figcaption><span>src&#x2F;objects&#x2F;code.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Cached value of code().InstructionStart().</span></span><br><span class="line"><span class="comment">// Available only when V8_EXTERNAL_CODE_SPACE is defined.</span></span><br><span class="line"><span class="built_in">DECL_GETTER</span>(code_entry_point, Address)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><figcaption><span>src&#x2F;objects&#x2F;code.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Alias for code_entry_point to make it API compatible with Code.</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> Address <span class="title">InstructionStart</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Alias for code_entry_point to make it API compatible with Code.</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> Address <span class="title">raw_instruction_start</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Alias for code_entry_point to make it API compatible with Code.</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> Address <span class="title">entry</span><span class="params">()</span> <span class="type">const</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>CodeDataContainer</code> has an accessor named <code>code_entry_point</code> pointing to where the instruction pointer moves when the function is called.</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">% <span class="title class_">DebugPrint</span>(wasm_instance.<span class="property">exports</span>.<span class="property">f3</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/10.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/11.png"></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">wasm_instance.<span class="property">exports</span>.<span class="title function_">f3</span>();</span><br></pre></td></tr></table></figure>
+
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/12.png"></p>
+<p>At this point, <code>rdi</code> holds the address of the <code>Function</code> object. The instructions from here get the call target corresponding to the function.</p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/13.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/14.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/15.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/16.png"></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/17.png"></p>
+<p>The instruction pointer eventually moves to the third entry in the jump table, which corresponds to <code>f3()</code>, the function we called.</p>
+<p>The <code>WasmInternalFunction</code> object is within the sandbox, so we can overwrite the call target with an arbitrary address to control the execution flow, using the sandboxed arbitrary address write primitive.</p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><h3 id="Implementing-sandboxed-exploit-primitives"><a href="#Implementing-sandboxed-exploit-primitives" class="headerlink" title="Implementing sandboxed exploit primitives"></a>Implementing sandboxed exploit primitives</h3><p>The memory corruption API allows us to simulate a bug that can be exploited to implement sandboxed exploit primitives.</p>
+<p>We can use <code>Sandbox.getAddressOf()</code> that returns the compressed address of a JavaScript object, to implement <code>addrof()</code> primitive. And we can use <code>Sandbox.MemoryView()</code> that returns an <code>ArrayBuffer</code> pointing to an arbitrary address within the sandbox, to implement sandboxed arbitrary address read&#x2F;write primitives.</p>
+<h3 id="Implementing-unsandboxed-AAR-AAW"><a href="#Implementing-unsandboxed-AAR-AAW" class="headerlink" title="Implementing unsandboxed AAR&#x2F;AAW"></a>Implementing unsandboxed AAR&#x2F;AAW</h3><p>We can get the address of a <code>TypedArray</code> using the <code>addrof()</code> primitive, and overwrite the <code>external_pointer</code> and <code>base_pointer</code> using the sandboxed AAW primitive. If we set the <code>base_pointer</code> to 0 and the <code>external_pointer</code> to an arbitrary 8-byte address, we can read or write the value at that address via the <code>TypedArray</code>.</p>
+<h3 id="Getting-address-of-WebAssembly-jump-table"><a href="#Getting-address-of-WebAssembly-jump-table" class="headerlink" title="Getting address of WebAssembly jump table"></a>Getting address of WebAssembly jump table</h3><p>We can use <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/docs/WebAssembly/Reference/JavaScript_interface/Instance/Instance"><code>WebAssembly.Instance()</code></a> constructor to create a WebAssembly instance from the WebAssembly module. The WebAssembly instance is managed by <code>WasmInstanceObject</code> class.</p>
+<figure class="highlight c++"><figcaption><span>src&#x2F;wasm&#x2F;wasm-objects.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">352</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">DECL_PRIMITIVE_ACCESSORS</span>(jump_table_start, Address)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><figcaption><span>src&#x2F;wasm&#x2F;wasm-objects.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">386</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">V</span>(kJumpTableStartOffset, kSystemPointerSize)                            \</span><br></pre></td></tr></table></figure>
+
+<p><code>WasmInstanceObject</code> has an accessor named <code>jump_table_start</code> that holds the address of the jump table for the module. We can get the address of the <code>WasmInstanceObject</code> using the <code>addrof()</code> primitive, and read the value at the <code>jump_table_start</code> field using the AAR primitive.</p>
+<h3 id="Executing-shellcode"><a href="#Executing-shellcode" class="headerlink" title="Executing shellcode"></a>Executing shellcode</h3><p>To put it simply, the instruction pointer moves to the address of the jump table when we call the first function in the module. We can overwrite the jump table with our shellcode so that it’s executed when the function is called.</p>
+<p><a href="pwn.wat"><code>pwn.wat</code></a> <a href="shellcode.py"><code>shellcode.py</code></a> <a href="pwn.js"><code>pwn.js</code></a></p>
+<p><img src="/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/pwn.png"></p>
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><blockquote><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/f759872d52093d1ac2b531f7e8fa956264b57ad9">[wasm] Ship code protection via mprotect</a> (Feb 15, 2022)<br>Even though this is not a perfect protection, it will make it harder to write to the wasm code space because it’s not permanently RWX.</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Setup"><span class="toc-number">1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Analysis"><span class="toc-number">2.</span> <span class="toc-text">Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Data-pointer-of-TypedArray"><span class="toc-number">2.1.</span> <span class="toc-text">Data pointer of TypedArray</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-flow-of-WebAssembly-function"><span class="toc-number">2.2.</span> <span class="toc-text">Execution flow of WebAssembly function</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Implementing-sandboxed-exploit-primitives"><span class="toc-number">3.1.</span> <span class="toc-text">Implementing sandboxed exploit primitives</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Implementing-unsandboxed-AAR-AAW"><span class="toc-number">3.2.</span> <span class="toc-text">Implementing unsandboxed AAR&#x2F;AAW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Getting-address-of-WebAssembly-jump-table"><span class="toc-number">3.3.</span> <span class="toc-text">Getting address of WebAssembly jump table</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Executing-shellcode"><span class="toc-number">3.4.</span> <span class="toc-text">Executing shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">4.</span> <span class="toc-text">Patch</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.facebook.com/sharer.php?u=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/share?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&text=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.linkedin.com/shareArticle?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://pinterest.com/pin/create/bookmarklet/?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&is_video=false&description=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&body=Check out this article: https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://getpocket.com/save?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://reddit.com/submit?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.stumbleupon.com/submit?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://digg.com/submit?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&title=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="http://www.tumblr.com/share/link?url=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&name=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="external nofollow noopener noreferrer" href="https://news.ycombinator.com/submitlink?u=https://aaronsjcho.github.io/escaping-v8-sandbox-via-typedarray-and-webassembly-code-space-part-1/&t=Escaping V8 Sandbox via TypedArray and WebAssembly Code Space: Part 1 (V8 &lt; 10.0.138)"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2026
+    Seongjoon (Aaron) Cho
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'aaronsjcho/aaronsjcho.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'Comment';
+      var utterances_theme = 'github-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          var utterances_thread = document.getElementById('utterances_thread');
+          if (utterances_thread) { utterances_thread.appendChild(script); }
+      }());
+  </script>
+
+</body>
+</html>
