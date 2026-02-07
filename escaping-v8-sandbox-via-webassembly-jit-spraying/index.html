@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    <meta name="description" content="Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24) Escaping V8 Sandbox via WebAssembly JIT Spraying: Part 2 (11.0.4 &lt;&#x3D; V8 &lt; 12.2.170)  In this post, I will introduce an exp">
+    <meta name="description" content="Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24) Escaping V8 Sandbox via WebAssembly JIT Spraying: Part 2 (11.0.4 &lt;&#x3D; V8 &lt; 12.2.170)  In this post, I will demonstrate a te">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24)">
 <meta property="og:url" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/index.html">
 <meta property="og:site_name" content="Aaron&#39;s Note">
-<meta property="og:description" content="Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24) Escaping V8 Sandbox via WebAssembly JIT Spraying: Part 2 (11.0.4 &lt;&#x3D; V8 &lt; 12.2.170)  In this post, I will introduce an exp">
+<meta property="og:description" content="Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24) Escaping V8 Sandbox via WebAssembly JIT Spraying: Part 2 (11.0.4 &lt;&#x3D; V8 &lt; 12.2.170)  In this post, I will demonstrate a te">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/1.png">
 <meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/2.png">
@@ -23,7 +23,7 @@
 <meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/8.png">
 <meta property="og:image" content="https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/pwn.png">
 <meta property="article:published_time" content="2024-02-03T03:00:00.000Z">
-<meta property="article:modified_time" content="2026-02-06T02:50:21.509Z">
+<meta property="article:modified_time" content="2026-02-07T12:23:57.275Z">
 <meta property="article:author" content="Seongjoon (Aaron) Cho">
 <meta property="article:tag" content="browser">
 <meta property="article:tag" content="chromium">
@@ -194,7 +194,7 @@
 <li><strong><a href="/escaping-v8-sandbox-via-webassembly-jit-spraying/" title="Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24)">Escaping V8 Sandbox via WebAssembly JIT Spraying (V8 &lt; 10.6.24)</a></strong></li>
 <li><a href="/escaping-v8-sandbox-via-webassembly-jit-spraying-part-2/" title="Escaping V8 Sandbox via WebAssembly JIT Spraying: Part 2 (11.0.4 &lt;&#x3D; V8 &lt; 12.2.170)">Escaping V8 Sandbox via WebAssembly JIT Spraying: Part 2 (11.0.4 &lt;&#x3D; V8 &lt; 12.2.170)</a></li>
 </ol>
-<p>In this post, I will introduce an exploit technique that allows us to escape the V8 sandbox by applying JIT spraying to WebAssembly. This assumes we already possess the standard exploit primitives within the sandbox.</p>
+<p>In this post, I will demonstrate a technique to escape the V8 sandbox by applying JIT spraying to WebAssembly. By manipulating the immediate constants in a WebAssembly function and redirecting execution flow, we can force the JIT compiler to emit executable shellcode into memory. This exploit assumes we have already achieved arbitrary read&#x2F;write primitives within the sandbox and focuses on crossing the sandbox boundary to achieve full remote code execution.</p>
 <h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><ul>
 <li>Ubuntu 20.04</li>
 <li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://chromium.googlesource.com/v8/v8.git/+/cb5c1b8a1fd1eee214501ee06fdd4566886803c1"><code>cb5c1b8a1fd1eee214501ee06fdd4566886803c1</code></a> (Jul 26, 2022)</li>
