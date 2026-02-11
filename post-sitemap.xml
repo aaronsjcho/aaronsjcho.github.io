@@ -9,16 +9,16 @@
 
 
     <url>
-        <loc>https://aaronsjcho.github.io/escaping-the-v8-sandbox-by-overwriting-webassembly-jump-table-via-typedarray-or-arraybuffer/</loc>
-        <lastmod>2026-02-11T05:13:01.600Z</lastmod>
+        <loc>https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/</loc>
+        <lastmod>2026-02-11T05:35:06.364Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
     </url>
 
     <url>
-        <loc>https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/</loc>
-        <lastmod>2026-02-07T12:23:57.275Z</lastmod>
+        <loc>https://aaronsjcho.github.io/escaping-the-v8-sandbox-by-overwriting-webassembly-jump-table-via-typedarray-or-arraybuffer/</loc>
+        <lastmod>2026-02-11T05:13:01.600Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
