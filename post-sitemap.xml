@@ -10,7 +10,7 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/escaping-v8-sandbox-via-webassembly-jit-spraying/</loc>
-        <lastmod>2026-02-11T05:35:06.364Z</lastmod>
+        <lastmod>2026-02-11T05:51:22.446Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -18,7 +18,7 @@
 
     <url>
         <loc>https://aaronsjcho.github.io/escaping-the-v8-sandbox-by-overwriting-webassembly-jump-table-via-typedarray-or-arraybuffer/</loc>
-        <lastmod>2026-02-11T05:13:01.600Z</lastmod>
+        <lastmod>2026-02-11T05:46:19.005Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
